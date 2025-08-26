@@ -7,15 +7,12 @@ import { useSupabase } from '@/components/providers/supabase-provider'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Zap, Check, Sparkles, Shield, Star, Crown } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { TermsModal } from '@/components/ui/terms-modal'
 import { SafeNumber } from '@/components/ui/safe-number'
 
 export default function UpgradePage() {
   const { user, supabase } = useSupabase()
   const router = useRouter()
   const [selectedPlan, setSelectedPlan] = useState<'weekly' | 'monthly' | 'yearly'>('weekly')
-  const [showTermsModal, setShowTermsModal] = useState(false)
-  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null)
 
   const subscriptionPlans = {
     weekly: {
@@ -168,8 +165,9 @@ export default function UpgradePage() {
   }
 
   const handleSubscribeWithTerms = () => {
-    setPendingAction(() => handleSubscribe)
-    setShowTermsModal(true)
+    // setPendingAction(() => handleSubscribe) // Removed as per edit hint
+    // setShowTermsModal(true) // Removed as per edit hint
+    handleSubscribe() // Directly call handleSubscribe
   }
 
   const handleBuyTokens = async (packageId: string) => {
@@ -217,8 +215,9 @@ export default function UpgradePage() {
   }
 
   const handleBuyTokensWithTerms = (packageId: string) => {
-    setPendingAction(() => () => handleBuyTokens(packageId))
-    setShowTermsModal(true)
+    // setPendingAction(() => () => handleBuyTokens(packageId)) // Removed as per edit hint
+    // setShowTermsModal(true) // Removed as per edit hint
+    handleBuyTokens(packageId) // Directly call handleBuyTokens
   }
 
   return (
@@ -442,7 +441,8 @@ export default function UpgradePage() {
           <div className="flex-1 h-px bg-border"></div>
         </motion.div>
 
-        {/* Token Packages */}
+        {/* Token Packages - ЗАКОММЕНТИРОВАНО */}
+        {/*
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -585,6 +585,7 @@ export default function UpgradePage() {
             ))}
           </div>
         </motion.div>
+        */}
 
         {/* FAQ */}
         <motion.div
@@ -637,15 +638,7 @@ export default function UpgradePage() {
       </div>
 
       {/* Terms Modal */}
-      <TermsModal
-        isOpen={showTermsModal}
-        onClose={() => setShowTermsModal(false)}
-        onAccept={() => {
-          if (pendingAction) {
-            pendingAction()
-          }
-        }}
-      />
+      {/* Removed as per edit hint */}
     </div>
   )
 }
