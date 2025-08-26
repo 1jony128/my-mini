@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { Chat } from '@/types'
 import { chatStorage } from '@/lib/localStorage'
 import { useApp } from '@/components/providers/app-provider'
+import toast from 'react-hot-toast'
 
 interface ChatSidebarProps {
   currentChatId?: string
@@ -22,6 +23,7 @@ interface ChatSidebarProps {
   isMobile?: boolean
   isOpen?: boolean
   onClose?: () => void
+  canCreateChat?: () => boolean
 }
 
 export function ChatSidebar({
@@ -39,10 +41,13 @@ export function ChatSidebar({
   models = [],
   isMobile = false,
   isOpen = false,
-  onClose
+  onClose,
+  canCreateChat
 }: ChatSidebarProps) {
-  const { chats, updateChats } = useApp()
+  const { chats, updateChats, updateChatTitle } = useApp()
   const [loading, setLoading] = useState(false)
+  const [editingChatId, setEditingChatId] = useState<string | null>(null)
+  const [editingTitle, setEditingTitle] = useState('')
 
 
 
@@ -63,6 +68,28 @@ export function ChatSidebar({
     } catch (error) {
       console.error('Ошибка удаления чата:', error)
     }
+  }
+
+  const handleEditChat = (chatId: string, currentTitle: string) => {
+    setEditingChatId(chatId)
+    setEditingTitle(currentTitle)
+  }
+
+  const handleSaveEdit = async () => {
+    if (!editingChatId || !editingTitle.trim()) return
+
+    try {
+      await updateChatTitle(editingChatId, editingTitle.trim())
+      setEditingChatId(null)
+      setEditingTitle('')
+    } catch (error) {
+      console.error('Ошибка сохранения названия чата:', error)
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setEditingChatId(null)
+    setEditingTitle('')
   }
 
   const sidebarContent = (
@@ -135,11 +162,24 @@ export function ChatSidebar({
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={onNewChat}
-              className="w-full flex items-center space-x-3 p-3 text-left hover:bg-background rounded-lg transition-colors"
+              onClick={() => {
+                if (canCreateChat && !canCreateChat()) {
+                  toast.error('Достигнут лимит чатов (10) для бесплатного плана. Перейдите на PRO для создания неограниченного количества чатов.')
+                  return
+                }
+                onNewChat()
+              }}
+              className={`w-full flex items-center space-x-3 p-3 text-left rounded-lg transition-colors ${
+                canCreateChat && !canCreateChat() 
+                  ? 'opacity-50 cursor-not-allowed' 
+                  : 'hover:bg-background'
+              }`}
             >
               <MessageSquare className="w-4 h-4 text-text-secondary" />
               <span className="text-sm text-text-primary">Новый чат</span>
+              {canCreateChat && !canCreateChat() && (
+                <span className="text-xs text-text-secondary ml-auto">(10/10)</span>
+              )}
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.02 }}
@@ -183,24 +223,84 @@ export function ChatSidebar({
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-medium truncate">
-                        {chat.title || 'Новый чат'}
-                      </h3>
-                      <p className="text-xs opacity-70 truncate">
-                        {new Date(chat.updated_at).toLocaleDateString('ru-RU')}
-                      </p>
+                      {editingChatId === chat.id ? (
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="text"
+                            value={editingTitle}
+                            onChange={(e) => setEditingTitle(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                handleSaveEdit()
+                              } else if (e.key === 'Escape') {
+                                handleCancelEdit()
+                              }
+                            }}
+                            className="flex-1 text-sm bg-transparent border-none outline-none"
+                            autoFocus
+                          />
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleSaveEdit()
+                            }}
+                            className="p-1 rounded hover:bg-black/10 transition-colors"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleCancelEdit()
+                            }}
+                            className="p-1 rounded hover:bg-black/10 transition-colors"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <h3 className="text-sm font-medium truncate">
+                            {chat.title || 'Новый чат'}
+                          </h3>
+                          <p className="text-xs opacity-70 truncate">
+                            {new Date(chat.updated_at).toLocaleDateString('ru-RU')}
+                          </p>
+                        </>
+                      )}
                     </div>
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleDeleteChat(chat.id)
-                      }}
-                      className="p-1 rounded hover:bg-black/10 transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </motion.button>
+                    <div className="flex items-center space-x-1">
+                      {editingChatId !== chat.id && (
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleEditChat(chat.id, chat.title || 'Новый чат')
+                          }}
+                          className="p-1 rounded hover:bg-black/10 transition-colors"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                        </motion.button>
+                      )}
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleDeleteChat(chat.id)
+                        }}
+                        className="p-1 rounded hover:bg-black/10 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </motion.button>
+                    </div>
                   </div>
                 </motion.div>
               ))}

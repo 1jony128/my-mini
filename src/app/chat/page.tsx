@@ -15,7 +15,7 @@ import Link from 'next/link'
 
 export default function HomePage() {
   const { user, loading } = useUser()
-  const { chats, userTokens, isPro, refreshChats, updateChats } = useApp()
+  const { chats, userTokens, isPro, refreshChats, updateChats, canCreateChat } = useApp()
   const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -114,6 +114,16 @@ export default function HomePage() {
 
       // Создаем чат только если его еще нет
       if (!chatId) {
+        // Проверяем лимит чатов для бесплатных пользователей
+        if (!canCreateChat()) {
+          toast.error('Достигнут лимит чатов (10) для бесплатного плана. Перейдите на PRO для создания неограниченного количества чатов.')
+          // Удаляем сообщение пользователя при ошибке
+          setMessages(prev => prev.filter(msg => msg.id !== userMessage.id))
+          setIsStreaming(false)
+          setIsLoading(false)
+          return
+        }
+
         const { data: chatData, error: chatError } = await supabase
           .from('chats')
           .insert({
@@ -232,6 +242,12 @@ export default function HomePage() {
   }
 
   const handleNewChat = () => {
+    // Проверяем лимит чатов для бесплатных пользователей
+    if (!canCreateChat()) {
+      toast.error('Достигнут лимит чатов (10) для бесплатного плана. Перейдите на PRO для создания неограниченного количества чатов.')
+      return
+    }
+    
     setMessages([])
     setSelectedChatId(undefined)
     setCurrentChatId(null)
@@ -325,6 +341,7 @@ export default function HomePage() {
           isMobile={isMobile}
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
+          canCreateChat={canCreateChat}
         />
       )}
 

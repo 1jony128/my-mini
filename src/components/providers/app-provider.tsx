@@ -15,6 +15,8 @@ interface AppContextType {
   refreshUserData: () => Promise<void>
   updateChats: (newChats: ChatType[]) => void
   updateUserData: (tokens: number, isPro: boolean) => void
+  canCreateChat: () => boolean
+  updateChatTitle: (chatId: string, newTitle: string) => Promise<void>
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined)
@@ -116,6 +118,37 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setIsPro(isPro)
   }
 
+  const canCreateChat = () => {
+    // Бесплатные пользователи могут создать максимум 10 чатов
+    if (!isPro && chats.length >= 10) {
+      return false
+    }
+    return true
+  }
+
+  const updateChatTitle = async (chatId: string, newTitle: string) => {
+    try {
+      const { error } = await supabase
+        .from('chats')
+        .update({ title: newTitle })
+        .eq('id', chatId)
+
+      if (error) {
+        console.error('Ошибка обновления названия чата:', error)
+        throw error
+      }
+
+      // Обновляем локальное состояние
+      const updatedChats = chats.map(chat => 
+        chat.id === chatId ? { ...chat, title: newTitle } : chat
+      )
+      updateChats(updatedChats)
+    } catch (error) {
+      console.error('Ошибка обновления названия чата:', error)
+      throw error
+    }
+  }
+
   const value: AppContextType = {
     chats,
     userTokens,
@@ -124,7 +157,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     refreshChats,
     refreshUserData,
     updateChats,
-    updateUserData
+    updateUserData,
+    canCreateChat,
+    updateChatTitle
   }
 
   return (
