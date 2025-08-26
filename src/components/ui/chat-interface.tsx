@@ -7,6 +7,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
+import { PromptTemplates } from './prompt-templates'
 
 interface Message {
   id: string
@@ -221,7 +222,7 @@ export function ChatInterface({
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-center text-text-secondary mt-20"
+              className="flex flex-col items-center justify-center min-h-[60vh] px-4"
             >
               <motion.div
                 animate={{ 
@@ -233,12 +234,32 @@ export function ChatInterface({
                   repeat: Infinity,
                   ease: "easeInOut"
                 }}
-                className="w-24 h-24 mx-auto mb-6 bg-primary rounded-full flex items-center justify-center"
+                className="w-20 h-20 md:w-24 md:h-24 mx-auto mb-6 bg-primary rounded-full flex items-center justify-center"
               >
-                <Sparkles className="w-12 h-12 text-white" />
+                <Sparkles className="w-10 h-10 md:w-12 md:h-12 text-white" />
               </motion.div>
-              <h2 className="text-2xl font-bold mb-2 text-text-primary">Добро пожаловать в AI Chat!</h2>
-              <p className="text-lg">Выберите модель и начните общение с ИИ</p>
+              
+              <div className="text-center mb-8">
+                <h2 className="text-xl md:text-2xl font-bold mb-2 text-foreground">Добро пожаловать в AI Chat!</h2>
+                <p className="text-base md:text-lg text-text-secondary">Выберите модель и начните общение с ИИ</p>
+              </div>
+
+              {/* Шаблоны промптов */}
+              <div className="w-full max-w-4xl">
+                <PromptTemplates 
+                  onSelectTemplate={(prompt) => {
+                    setInputMessage(prompt)
+                    // Фокусируемся на поле ввода
+                    setTimeout(() => {
+                      const input = document.querySelector('textarea') as HTMLTextAreaElement
+                      if (input) {
+                        input.focus()
+                        input.setSelectionRange(prompt.length, prompt.length)
+                      }
+                    }, 100)
+                  }}
+                />
+              </div>
             </motion.div>
           )}
 
@@ -472,23 +493,6 @@ export function ChatInterface({
             />
           
           </div>
-
-          <motion.button
-            id='send'
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={onSendMessage}
-            disabled={!inputMessage.trim() || isLoading}
-            className={`h-full   bg-primary hover:bg-primary-dark rounded-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md text-white ${
-              isMobile ? 'p-2' : 'p-3'
-            }`}
-          >
-            {isLoading ? (
-              <Loader2 className={`text-white animate-spin ${isMobile ? 'w-4 h-4' : 'w-6 h-6'}`} />
-            ) : (
-              <Send className={`text-white ${isMobile ? 'w-4 h-4' : 'w-6 h-6'}`} />
-            )}
-          </motion.button>
 
           <motion.button
             id='voice'
