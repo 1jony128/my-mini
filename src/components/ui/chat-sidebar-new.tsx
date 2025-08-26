@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
-import { Plus, MessageSquare, Trash2, Settings, User, X, Zap, Sparkles } from 'lucide-react'
+import { Plus, MessageSquare, Trash2, Settings, User, X, Zap, Sparkles, Moon, Sun } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { Chat } from '@/types'
 import { chatStorage } from '@/lib/localStorage'
 import { useApp } from '@/components/providers/app-provider'
+import { useTheme } from '@/components/providers/theme-provider'
 import toast from 'react-hot-toast'
 
 interface ChatSidebarProps {
@@ -45,6 +46,7 @@ export function ChatSidebar({
   canCreateChat
 }: ChatSidebarProps) {
   const { chats, updateChats, updateChatTitle } = useApp()
+  const { theme, toggleTheme } = useTheme()
   const [loading, setLoading] = useState(false)
   const [editingChatId, setEditingChatId] = useState<string | null>(null)
   const [editingTitle, setEditingTitle] = useState('')
@@ -211,6 +213,21 @@ export function ChatSidebar({
             >
               <Settings className="w-4 h-4 text-text-secondary" />
               <span className="text-sm text-text-primary">Настройки</span>
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={toggleTheme}
+              className="w-full flex items-center space-x-3 p-3 text-left hover:bg-background rounded-lg transition-colors cursor-pointer"
+            >
+              {theme === 'dark' ? (
+                <Sun className="w-4 h-4 text-text-secondary" />
+              ) : (
+                <Moon className="w-4 h-4 text-text-secondary" />
+              )}
+              <span className="text-sm text-text-primary">
+                {theme === 'dark' ? 'Светлая тема' : 'Темная тема'}
+              </span>
             </motion.button>
           </div>
         </div>

@@ -4,6 +4,7 @@ import './globals.css'
 import { Toaster } from 'react-hot-toast'
 import { SupabaseProvider } from '@/components/providers/supabase-provider'
 import { AppProvider } from '@/components/providers/app-provider'
+import { ThemeProvider } from '@/components/providers/theme-provider'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -78,12 +79,14 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body className={inter.className}>
-        <SupabaseProvider>
-          <AppProvider>
-            {children}
-            <Toaster position="top-right" />
-          </AppProvider>
-        </SupabaseProvider>
+        <ThemeProvider>
+          <SupabaseProvider>
+            <AppProvider>
+              {children}
+              <Toaster position="top-right" />
+            </AppProvider>
+          </SupabaseProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
