@@ -13,119 +13,99 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Для покупки токенов
-    if (type === 'tokens' || (!type && packageId)) {
-      if (!packageId || !tokens || !price) {
-        return NextResponse.json(
-          { error: 'Не все параметры для покупки токенов указаны' },
-          { status: 400 }
-        )
+    // Определяем тип заказа для Edge Function
+    let orderType = 'month' // по умолчанию
+    if (type === 'subscription') {
+      if (plan === 'monthly' || plan === 'month') {
+        orderType = 'month'
+      } else if (plan === 'yearly' || plan === 'year') {
+        orderType = 'year'
+      } else if (plan === 'weekly' || plan === 'sale20') {
+        orderType = 'sale20'
       }
     }
 
-    // Для подписки
-    if (type === 'subscription') {
-      if (!plan || !price) {
-        return NextResponse.json(
-          { error: 'Не все параметры для подписки указаны' },
-          { status: 400 }
-        )
-      }
-    }
-
-    // Создаем запись о платеже в базе данных
-    const paymentRecord = {
-      user_id: userId,
-      price: price,
-      status: 'pending',
-      created_at: new Date().toISOString()
-    }
-
-    // Добавляем специфичные поля в зависимости от типа платежа
-    if (type === 'subscription') {
-      paymentRecord.package_id = `subscription_${plan}`
-      paymentRecord.tokens_amount = 0
-      paymentRecord.subscription_type = plan
-    } else {
-      paymentRecord.package_id = packageId
-      paymentRecord.tokens_amount = tokens
-    }
-
-    const { data: paymentData, error: paymentError } = await supabaseAdmin
-      .from('payments')
-      .insert(paymentRecord)
+    // Создаем заказ в таблице orders
+    const { data: orderData, error: orderError } = await supabaseAdmin
+      .from('orders')
+      .insert({
+        user_id: userId,
+        type: orderType,
+        status: 'pending',
+        amount: price
+      })
       .select()
       .single()
 
-    if (paymentError) {
-      console.error('Ошибка создания платежа:', paymentError)
+    if (orderError) {
+      console.error('Ошибка создания заказа:', orderError)
+      return NextResponse.json(
+        { error: 'Ошибка создания заказа' },
+        { status: 500 }
+      )
+    }
+
+    // Получаем токен сессии для авторизации
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader) {
+      return NextResponse.json(
+        { error: 'Токен авторизации не найден' },
+        { status: 401 }
+      )
+    }
+
+    // Вызываем Supabase Edge Function
+    const edgeFunctionUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/payment-init`
+    
+    const edgeFunctionResponse = await fetch(edgeFunctionUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': authHeader
+      },
+      body: JSON.stringify({
+        orderId: orderData.id,
+        paymentSelect: 'bank_card'
+      })
+    })
+
+    if (!edgeFunctionResponse.ok) {
+      const errorData = await edgeFunctionResponse.json()
+      console.error('Ошибка Edge Function:', errorData)
+      
+      // Обновляем статус заказа на failed
+      await supabaseAdmin
+        .from('orders')
+        .update({ status: 'failed' })
+        .eq('id', orderData.id)
+
+      return NextResponse.json(
+        { error: 'Ошибка инициализации платежа' },
+        { status: 500 }
+      )
+    }
+
+    const responseData = await edgeFunctionResponse.json()
+
+    if (!responseData.succeeded) {
+      console.error('Ошибка в ответе Edge Function:', responseData)
+      
+      // Обновляем статус заказа на failed
+      await supabaseAdmin
+        .from('orders')
+        .update({ status: 'failed' })
+        .eq('id', orderData.id)
+
       return NextResponse.json(
         { error: 'Ошибка создания платежа' },
         { status: 500 }
       )
     }
 
-    // Создаем платеж в YooKassa
-    const yookassaResponse = await fetch('https://api.yookassa.ru/v3/payments', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Idempotence-Key': paymentData.id,
-        'Authorization': `Basic ${Buffer.from(`${process.env.YOOKASSA_SHOP_ID}:${process.env.YOOKASSA_SECRET_KEY}`).toString('base64')}`
-      },
-      body: JSON.stringify({
-        amount: {
-          value: price.toString(),
-          currency: 'RUB'
-        },
-        capture: true,
-        confirmation: {
-          type: 'redirect',
-          return_url: `${process.env.NEXT_PUBLIC_APP_URL}/payments/success?payment_id=${paymentData.id}`
-        },
-        description: type === 'subscription' 
-          ? `Подписка PRO на ${plan === 'monthly' ? 'месяц' : 'год'}`
-          : `Покупка ${tokens.toLocaleString()} токенов`,
-        metadata: {
-          payment_id: paymentData.id,
-          user_id: userId,
-          package_id: type === 'subscription' ? `subscription_${plan}` : packageId,
-          tokens_amount: type === 'subscription' ? 0 : tokens,
-          type: type || 'tokens'
-        }
-      })
-    })
-
-    if (!yookassaResponse.ok) {
-      const errorData = await yookassaResponse.json()
-      console.error('Ошибка YooKassa:', errorData)
-      
-      // Обновляем статус платежа на failed
-      await supabaseAdmin
-        .from('payments')
-        .update({ status: 'failed' })
-        .eq('id', paymentData.id)
-
-      return NextResponse.json(
-        { error: 'Ошибка создания платежа в YooKassa' },
-        { status: 500 }
-      )
-    }
-
-    const yookassaData = await yookassaResponse.json()
-
-    // Обновляем запись платежа с ID от YooKassa
-    await supabaseAdmin
-      .from('payments')
-      .update({ 
-        yookassa_payment_id: yookassaData.id,
-        status: 'created'
-      })
-      .eq('id', paymentData.id)
-
     return NextResponse.json({
-      paymentUrl: yookassaData.confirmation.confirmation_url,
-      paymentId: paymentData.id
+      paymentUrl: responseData.data.url,
+      paymentId: orderData.id,
+      orderId: orderData.id
     })
 
   } catch (error) {

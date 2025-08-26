@@ -1,38 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase-admin'
-import { resetProCredits } from '@/lib/pro-credits'
+import { supabaseAdmin } from '@/lib/supabase'
 
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const paymentId = searchParams.get('payment_id')
+    const body = await request.json()
+    const { paymentId, orderId } = body
 
-    if (!paymentId) {
+    if (!paymentId || !orderId) {
       return NextResponse.json(
-        { error: 'ID платежа не указан' },
+        { error: 'ID платежа и заказа обязательны' },
         { status: 400 }
       )
     }
 
-    // Получаем данные платежа из базы
-    const { data: payment, error: paymentError } = await supabaseAdmin
-      .from('payments')
+    // Получаем заказ из базы данных
+    const { data: order, error: orderError } = await supabaseAdmin
+      .from('orders')
       .select('*')
-      .eq('id', paymentId)
+      .eq('id', orderId)
       .single()
 
-    if (paymentError || !payment) {
+    if (orderError || !order) {
       return NextResponse.json(
-        { error: 'Платеж не найден' },
+        { error: 'Заказ не найден' },
         { status: 404 }
       )
     }
 
     // Проверяем статус платежа в YooKassa
-    const yookassaResponse = await fetch(`https://api.yookassa.ru/v3/payments/${payment.yookassa_payment_id}`, {
+    const yookassaResponse = await fetch(`https://api.yookassa.ru/v3/payments/${paymentId}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Basic ${Buffer.from(`${process.env.YOOKASSA_SHOP_ID}:${process.env.YOOKASSA_SECRET_KEY}`).toString('base64')}`
+        'Authorization': `Basic ${Buffer.from(`${process.env.YOOKASSA_SHOP_ID}:${process.env.YOOKASSA_SECRET_KEY}`).toString('base64')}`,
+        'Content-Type': 'application/json'
       }
     })
 
@@ -43,128 +43,46 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const yookassaData = await yookassaResponse.json()
+    const paymentData = await yookassaResponse.json()
 
-    // Если платеж успешен и еще не обработан
-    if (yookassaData.status === 'succeeded' && payment.status !== 'completed') {
-      const { data: user, error: userError } = await supabaseAdmin
+    // Обновляем статус заказа
+    let orderStatus = 'pending'
+    if (paymentData.status === 'succeeded') {
+      orderStatus = 'completed'
+    } else if (paymentData.status === 'canceled') {
+      orderStatus = 'cancelled'
+    } else if (paymentData.status === 'failed') {
+      orderStatus = 'failed'
+    }
+
+    await supabaseAdmin
+      .from('orders')
+      .update({ 
+        status: orderStatus,
+        payment_id: paymentId
+      })
+      .eq('id', orderId)
+
+    // Если платеж успешен, обновляем статус пользователя
+    if (paymentData.status === 'succeeded') {
+      const { error: userUpdateError } = await supabaseAdmin
         .from('users')
-        .select('tokens_balance, is_pro')
-        .eq('id', payment.user_id)
-        .single()
-
-      if (userError) {
-        return NextResponse.json(
-          { error: 'Пользователь не найден' },
-          { status: 404 }
-        )
-      }
-
-      // Проверяем тип платежа
-      const isSubscription = payment.package_id?.startsWith('subscription_')
-      
-      if (isSubscription) {
-        // Обработка подписки
-        const subscriptionType = payment.subscription_type || 'weekly'
-        const subscriptionEndDate = new Date()
-        
-        if (subscriptionType === 'weekly') {
-          subscriptionEndDate.setDate(subscriptionEndDate.getDate() + 7)
-        } else if (subscriptionType === 'monthly') {
-          subscriptionEndDate.setMonth(subscriptionEndDate.getMonth() + 1)
-        } else {
-          subscriptionEndDate.setFullYear(subscriptionEndDate.getFullYear() + 1)
-        }
-
-        // Обновляем статус PRO пользователя
-        const { error: updateError } = await supabaseAdmin
-          .from('users')
-          .update({ 
-            is_pro: true,
-            pro_expires_at: subscriptionEndDate.toISOString(),
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', payment.user_id)
-
-        if (updateError) {
-          return NextResponse.json(
-            { error: 'Ошибка обновления статуса PRO' },
-            { status: 500 }
-          )
-        }
-
-        // Сбрасываем кредиты для нового плана
-        await resetProCredits(payment.user_id, subscriptionType)
-      } else {
-        // Обработка покупки токенов
-        const newBalance = (user.tokens_balance || 0) + payment.tokens_amount
-
-        // Обновляем баланс пользователя
-        const { error: updateError } = await supabaseAdmin
-          .from('users')
-          .update({ 
-            tokens_balance: newBalance,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', payment.user_id)
-
-        if (updateError) {
-          return NextResponse.json(
-            { error: 'Ошибка обновления баланса' },
-            { status: 500 }
-          )
-        }
-      }
-
-      // Обновляем статус платежа
-      await supabaseAdmin
-        .from('payments')
         .update({ 
-          status: 'completed',
-          completed_at: new Date().toISOString()
+          is_pro: true,
+          pro_plan_type: order.type,
+          pro_expires_at: getExpirationDate(order.type)
         })
-        .eq('id', paymentId)
+        .eq('id', order.user_id)
 
-      return NextResponse.json({
-        success: true,
-        type: isSubscription ? 'subscription' : 'tokens',
-        tokens_amount: payment.tokens_amount,
-        price: payment.price,
-        new_balance: isSubscription ? null : newBalance,
-        subscription_type: isSubscription ? payment.subscription_type : null
-      })
-    }
-
-    // Если платеж еще в процессе
-    if (yookassaData.status === 'pending') {
-      return NextResponse.json({
-        success: false,
-        status: 'pending',
-        message: 'Платеж обрабатывается'
-      })
-    }
-
-    // Если платеж не прошел
-    if (yookassaData.status === 'canceled' || yookassaData.status === 'failed') {
-      await supabaseAdmin
-        .from('payments')
-        .update({ 
-          status: 'failed',
-          completed_at: new Date().toISOString()
-        })
-        .eq('id', paymentId)
-
-      return NextResponse.json({
-        success: false,
-        status: 'failed',
-        message: 'Платеж не прошел'
-      })
+      if (userUpdateError) {
+        console.error('Ошибка обновления пользователя:', userUpdateError)
+      }
     }
 
     return NextResponse.json({
       success: true,
-      tokens_amount: payment.tokens_amount,
-      price: payment.price
+      status: paymentData.status,
+      orderStatus: orderStatus
     })
 
   } catch (error) {
@@ -173,5 +91,20 @@ export async function GET(request: NextRequest) {
       { error: 'Внутренняя ошибка сервера' },
       { status: 500 }
     )
+  }
+}
+
+function getExpirationDate(type: string): string {
+  const now = new Date()
+  
+  switch (type) {
+    case 'month':
+      return new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString()
+    case 'year':
+      return new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000).toISOString()
+    case 'sale20':
+      return new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString()
+    default:
+      return new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString()
   }
 }
