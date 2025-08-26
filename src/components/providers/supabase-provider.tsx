@@ -29,31 +29,23 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const getUser = async () => {
+    // Получаем начальную сессию
+    const getInitialSession = async () => {
       try {
-        const { data: { user }, error } = await supabase.auth.getUser()
-        
-        // Также проверяем сессию
         const { data: { session } } = await supabase.auth.getSession()
-        
-        if (error) {
-          console.error('Ошибка получения пользователя:', error)
-        }
-        
-        // Используем пользователя из сессии, если getUser не сработал
-        setUser(user || session?.user || null)
+        setUser(session?.user ?? null)
         setLoading(false)
       } catch (error) {
-        console.error('Ошибка аутентификации:', error)
+        console.error('Ошибка получения сессии:', error)
         setLoading(false)
       }
     }
 
-    getUser()
+    getInitialSession()
 
+    // Подписываемся на изменения состояния аутентификации
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        // console.log('SupabaseProvider - auth state change:', event, session?.user?.email)
         setUser(session?.user ?? null)
         setLoading(false)
       }

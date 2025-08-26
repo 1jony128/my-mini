@@ -53,6 +53,19 @@ export function ChatSidebar({
 
 
   const handleDeleteChat = async (chatId: string) => {
+    // Находим чат для отображения названия в подтверждении
+    const chatToDelete = chats.find(chat => chat.id === chatId)
+    const chatTitle = chatToDelete?.title || 'Новый чат'
+    
+    // Показываем подтверждение
+    const confirmed = window.confirm(
+      `Вы уверены, что хотите удалить чат "${chatTitle}"?\n\nЭто действие нельзя отменить.`
+    )
+    
+    if (!confirmed) {
+      return
+    }
+
     try {
       const { error } = await supabase
         .from('chats')
@@ -61,13 +74,16 @@ export function ChatSidebar({
 
       if (error) {
         console.error('Ошибка удаления чата:', error)
+        toast.error('Ошибка удаления чата')
       } else {
         const updatedChats = chats.filter(chat => chat.id !== chatId)
         updateChats(updatedChats)
         onDeleteChat(chatId)
+        toast.success('Чат успешно удален')
       }
     } catch (error) {
       console.error('Ошибка удаления чата:', error)
+      toast.error('Ошибка удаления чата')
     }
   }
 

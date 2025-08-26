@@ -31,13 +31,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Загружаем данные только один раз при инициализации
   useEffect(() => {
-    if (user && !isInitialized) {
+    if (user && !isInitialized && !isLoading) {
       loadInitialData()
     }
-  }, [user, isInitialized])
+  }, [user, isInitialized, isLoading])
 
   const loadInitialData = async () => {
-    if (!user) return
+    if (!user || isInitialized || isLoading) return
     
     setIsLoading(true)
     try {
