@@ -61,7 +61,8 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': authHeader
+        'Authorization': authHeader,
+        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
       },
       body: JSON.stringify({
         orderId: orderData.id,

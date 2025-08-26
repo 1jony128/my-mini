@@ -7,11 +7,13 @@ import { supabase } from '@/lib/supabase'
 type SupabaseContextType = {
   user: User | null
   loading: boolean
+  supabase: typeof supabase
 }
 
 const SupabaseContext = createContext<SupabaseContextType>({
   user: null,
   loading: true,
+  supabase,
 })
 
 export const useUser = () => {
@@ -57,7 +59,7 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
   // console.log('SupabaseProvider - rendering with user:', user?.email, 'loading:', loading)
 
   return (
-    <SupabaseContext.Provider value={{ user, loading }}>
+    <SupabaseContext.Provider value={{ user, loading, supabase }}>
       {children}
     </SupabaseContext.Provider>
   )

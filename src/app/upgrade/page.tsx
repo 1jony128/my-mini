@@ -10,7 +10,7 @@ import toast from 'react-hot-toast'
 import { TermsModal } from '@/components/ui/terms-modal'
 
 export default function UpgradePage() {
-  const { user } = useSupabase()
+  const { user, supabase } = useSupabase()
   const router = useRouter()
   const [selectedPlan, setSelectedPlan] = useState<'weekly' | 'monthly' | 'yearly'>('weekly')
   const [showTermsModal, setShowTermsModal] = useState(false)
@@ -131,6 +131,13 @@ export default function UpgradePage() {
         return
       }
 
+      // Получаем токен сессии
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        toast.error('Ошибка авторизации')
+        return
+      }
+
       const plan = subscriptionPlans[selectedPlan]
       
       // Создаем платеж подписки через API
@@ -138,6 +145,7 @@ export default function UpgradePage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
         },
         body: JSON.stringify({
           type: 'subscription',
@@ -173,12 +181,20 @@ export default function UpgradePage() {
         router.push('/auth/login')
         return
       }
+
+      // Получаем токен сессии
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        toast.error('Ошибка авторизации')
+        return
+      }
       
       // Создаем платеж через API
       const response = await fetch('/api/payments/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
         },
         body: JSON.stringify({
           packageId: pkg.id,
