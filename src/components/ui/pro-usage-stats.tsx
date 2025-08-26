@@ -1,17 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useUser } from '@/components/providers/supabase-provider'
-import { supabase } from '@/lib/supabase'
-import { 
-  BarChart3, 
-  MessageSquare, 
-  Zap, 
-  Clock, 
-  TrendingUp,
-  Activity
-} from 'lucide-react'
 import { motion } from 'framer-motion'
+import { BarChart3, TrendingUp, Clock, Zap, Activity, MessageSquare } from 'lucide-react'
+import { useSupabase } from '@/components/providers/supabase-provider'
+import { SafeNumber } from '@/components/ui/safe-number'
 
 interface ProUsageData {
   user: {
@@ -42,7 +35,7 @@ interface ProUsageData {
 }
 
 export default function ProUsageStats() {
-  const { user } = useUser()
+  const { user, supabase } = useSupabase()
   const [usageData, setUsageData] = useState<ProUsageData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -182,7 +175,9 @@ export default function ProUsageStats() {
             </div>
             <div>
               <p className="text-lg font-bold text-text-primary">
-                {usageData.today.tokens_used.toLocaleString()}
+                <div className="text-2xl font-bold text-text-primary">
+                  <SafeNumber value={usageData.today.tokens_used} />
+                </div>
               </p>
               <p className="text-sm text-text-secondary">Токенов сегодня</p>
             </div>

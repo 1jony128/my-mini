@@ -8,6 +8,7 @@ import { motion } from 'framer-motion'
 import { ArrowLeft, Zap, Check, Sparkles, Shield, Star, Crown } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { TermsModal } from '@/components/ui/terms-modal'
+import { SafeNumber } from '@/components/ui/safe-number'
 
 export default function UpgradePage() {
   const { user, supabase } = useSupabase()
@@ -488,11 +489,11 @@ export default function UpgradePage() {
                     {pkg.price}₽
                   </div>
                   <div className="text-sm text-text-secondary">
-                    {pkg.tokens.toLocaleString()} токенов
+                    <SafeNumber value={pkg.tokens} /> токенов
                   </div>
                   {pkg.bonus > 0 && (
                     <div className="text-xs text-success font-medium mt-1">
-                      +{pkg.bonus.toLocaleString()} бонус
+                      +<SafeNumber value={pkg.bonus} /> бонус
                     </div>
                   )}
                 </div>
@@ -501,7 +502,7 @@ export default function UpgradePage() {
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-text-secondary">Всего токенов:</span>
                     <span className="font-medium text-text-primary">
-                      {(pkg.tokens + pkg.bonus).toLocaleString()}
+                      <SafeNumber value={pkg.tokens + pkg.bonus} />
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">

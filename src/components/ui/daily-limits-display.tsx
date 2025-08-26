@@ -1,7 +1,10 @@
+'use client'
+
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { supabase } from '@/lib/supabase'
-import { Clock, AlertCircle, CheckCircle } from 'lucide-react'
+import { AlertTriangle, CheckCircle, XCircle, Info, Clock, AlertCircle } from 'lucide-react'
+import { useSupabase } from '@/components/providers/supabase-provider'
+import { SafeNumber } from '@/components/ui/safe-number'
 
 interface DailyLimitsData {
   isPro: boolean
@@ -24,6 +27,7 @@ export function DailyLimitsDisplay() {
   const [dailyLimits, setDailyLimits] = useState<DailyLimitsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { supabase } = useSupabase()
 
   useEffect(() => {
     fetchDailyLimits()
@@ -73,7 +77,7 @@ export function DailyLimitsDisplay() {
     return (
       <div className="p-4 bg-background rounded-lg border border-border">
         <div className="flex items-center space-x-2 text-error">
-          <AlertCircle className="w-4 h-4" />
+          <AlertTriangle className="w-4 h-4" />
           <span className="text-sm">{error}</span>
         </div>
       </div>
@@ -110,8 +114,8 @@ export function DailyLimitsDisplay() {
         {/* Прогресс бар запросов */}
         <div className="space-y-1">
           <div className="flex justify-between text-xs text-text-secondary">
-            <span>Запросы: {limits.used}/{limits.limit}</span>
-            <span>{limits.remaining} осталось</span>
+            <span>Запросы: <SafeNumber value={limits.used} />/<SafeNumber value={limits.limit} /></span>
+            <span><SafeNumber value={limits.remaining} /> осталось</span>
           </div>
           <div className="w-full bg-muted rounded-full h-2">
             <motion.div
@@ -129,8 +133,8 @@ export function DailyLimitsDisplay() {
         {/* Прогресс бар токенов */}
         <div className="space-y-1">
           <div className="flex justify-between text-xs text-text-secondary">
-            <span>Токены: {tokens.used.toLocaleString()}/{tokens.limit.toLocaleString()}</span>
-            <span>{tokens.remaining.toLocaleString()} осталось</span>
+            <span>Токены: <SafeNumber value={tokens.used} />/<SafeNumber value={tokens.limit} /></span>
+            <span><SafeNumber value={tokens.remaining} /> осталось</span>
           </div>
           <div className="w-full bg-muted rounded-full h-2">
             <motion.div
