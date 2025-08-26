@@ -48,6 +48,7 @@ export function ChatSidebar({
   const [loading, setLoading] = useState(false)
   const [editingChatId, setEditingChatId] = useState<string | null>(null)
   const [editingTitle, setEditingTitle] = useState('')
+  const [hoveredChatId, setHoveredChatId] = useState<string | null>(null)
 
 
 
@@ -84,6 +85,11 @@ export function ChatSidebar({
       setEditingTitle('')
     } catch (error) {
       console.error('Ошибка сохранения названия чата:', error)
+      // В случае ошибки возвращаем исходное название
+      const currentChat = chats.find(chat => chat.id === editingChatId)
+      if (currentChat) {
+        setEditingTitle(currentChat.title || 'Новый чат')
+      }
     }
   }
 
@@ -220,6 +226,8 @@ export function ChatSidebar({
                       : 'bg-background hover:bg-muted text-text-primary border border-border'
                   }`}
                   onClick={() => onChatSelect(chat.id)}
+                  onMouseEnter={() => setHoveredChatId(chat.id)}
+                  onMouseLeave={() => setHoveredChatId(null)}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
@@ -274,8 +282,11 @@ export function ChatSidebar({
                       )}
                     </div>
                     <div className="flex items-center space-x-1">
-                      {editingChatId !== chat.id && (
+                      {editingChatId !== chat.id && hoveredChatId === chat.id && (
                         <motion.button
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
                           onClick={(e) => {
@@ -289,17 +300,22 @@ export function ChatSidebar({
                           </svg>
                         </motion.button>
                       )}
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleDeleteChat(chat.id)
-                        }}
-                        className="p-1 rounded hover:bg-black/10 transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </motion.button>
+                      {hoveredChatId === chat.id && (
+                        <motion.button
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleDeleteChat(chat.id)
+                          }}
+                          className="p-1 rounded hover:bg-black/10 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </motion.button>
+                      )}
                     </div>
                   </div>
                 </motion.div>

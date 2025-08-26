@@ -128,6 +128,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const updateChatTitle = async (chatId: string, newTitle: string) => {
     try {
+      // Находим текущий чат
+      const currentChat = chats.find(chat => chat.id === chatId)
+      if (!currentChat) {
+        throw new Error('Чат не найден')
+      }
+
+      // Проверяем, изменилось ли название
+      if (currentChat.title === newTitle) {
+        // Название не изменилось, просто обновляем локальное состояние
+        return
+      }
+
       const { error } = await supabase
         .from('chats')
         .update({ title: newTitle })
