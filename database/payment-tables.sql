@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS public.orders (
     status TEXT DEFAULT 'pending', -- 'pending', 'completed', 'failed', 'cancelled'
     payment_id TEXT,
     amount DECIMAL(10,2),
+    paid BOOLEAN DEFAULT FALSE, -- Добавляем колонку для отслеживания оплаты
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -67,3 +68,37 @@ CREATE TRIGGER update_prices_updated_at BEFORE UPDATE ON public.prices
 
 CREATE TRIGGER update_orders_updated_at BEFORE UPDATE ON public.orders
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Добавляем недостающие колонки в таблицу users (если их нет)
+DO $$ 
+BEGIN
+    -- Добавляем колонку isPro если её нет
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'isPro') THEN
+        ALTER TABLE public.users ADD COLUMN isPro BOOLEAN DEFAULT FALSE;
+    END IF;
+    
+    -- Добавляем колонку pro_active_date если её нет
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'pro_active_date') THEN
+        ALTER TABLE public.users ADD COLUMN pro_active_date TIMESTAMP WITH TIME ZONE;
+    END IF;
+    
+    -- Добавляем колонку payment_method_id если её нет
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'payment_method_id') THEN
+        ALTER TABLE public.users ADD COLUMN payment_method_id TEXT;
+    END IF;
+    
+    -- Добавляем колонку payment_method_type если её нет
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'payment_method_type') THEN
+        ALTER TABLE public.users ADD COLUMN payment_method_type TEXT;
+    END IF;
+    
+    -- Добавляем колонку last4 если её нет
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'last4') THEN
+        ALTER TABLE public.users ADD COLUMN last4 TEXT;
+    END IF;
+    
+    -- Добавляем колонку first6 если её нет
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'first6') THEN
+        ALTER TABLE public.users ADD COLUMN first6 TEXT;
+    END IF;
+END $$;

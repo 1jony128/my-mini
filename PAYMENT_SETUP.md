@@ -2,40 +2,33 @@
 
 ## 1. Создание таблиц в базе данных
 
-Выполните SQL скрипт `database/payment-tables.sql` в Supabase Dashboard:
+Выполните SQL скрипты в Supabase Dashboard в следующем порядке:
+
+### 1.1 Основные таблицы платежей
+```sql
+-- Выполните database/payment-tables.sql
+```
+
+### 1.2 Исправление для Edge Function
+```sql
+-- Выполните database/edge-function-fix.sql
+```
+
+### 1.3 Если возникла ошибка "Could not find the 'paid' column"
+
+Если Edge Function выдает ошибку о том, что колонка `paid` не найдена, выполните:
 
 ```sql
--- Создание таблицы цен для разных типов подписок
-CREATE TABLE IF NOT EXISTS public.prices (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    type TEXT NOT NULL UNIQUE,
-    price DECIMAL(10,2) NOT NULL,
-    description TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+-- Добавляем колонку paid в таблицу orders
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS paid BOOLEAN DEFAULT FALSE;
 
--- Создание таблицы заказов
-CREATE TABLE IF NOT EXISTS public.orders (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
-    type TEXT NOT NULL, -- 'month', 'year', 'sale20'
-    status TEXT DEFAULT 'pending', -- 'pending', 'completed', 'failed', 'cancelled'
-    payment_id TEXT,
-    amount DECIMAL(10,2),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Вставка базовых цен
-INSERT INTO public.prices (type, price, description) VALUES
-    ('month', 299.00, 'Подписка на месяц'),
-    ('year', 2990.00, 'Подписка на год'),
-    ('sale20', 200.00, 'Подписка на неделю')
-ON CONFLICT (type) DO UPDATE SET
-    price = EXCLUDED.price,
-    description = EXCLUDED.description,
-    updated_at = NOW();
+-- Добавляем недостающие колонки в таблицу users
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS isPro BOOLEAN DEFAULT FALSE;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS pro_active_date TIMESTAMP WITH TIME ZONE;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS payment_method_id TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS payment_method_type TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS last4 TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS first6 TEXT;
 ```
 
 ## 2. Настройка переменных окружения
