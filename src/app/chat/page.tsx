@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@/components/providers/supabase-provider'
+import { useApp } from '@/components/providers/app-provider'
 import { Menu } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { ChatInterface } from '@/components/ui/chat-interface'
@@ -14,6 +15,7 @@ import Link from 'next/link'
 
 export default function HomePage() {
   const { user, loading } = useUser()
+  const { chats, userTokens, isPro, refreshChats, updateChats } = useApp()
   const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -23,9 +25,6 @@ export default function HomePage() {
   const [selectedChatId, setSelectedChatId] = useState<string | undefined>()
   const [currentChatId, setCurrentChatId] = useState<string | null>(null)
   const [models, setModels] = useState<Array<{ id: string; name: string; provider: string; is_free: boolean }>>([])
-  const [chats, setChats] = useState<ChatType[]>([])
-  const [userTokens, setUserTokens] = useState(1250)
-  const [isPro, setIsPro] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -53,7 +52,7 @@ export default function HomePage() {
   }
 
   useEffect(() => {
-    // Загружаем модели через API
+    // Загружаем модели через API только один раз
     const loadModels = async () => {
       try {
         const response = await fetch('/api/models')
@@ -66,58 +65,12 @@ export default function HomePage() {
       }
     }
 
-    if (user) {
-      loadChats()
+    if (user && models.length === 0) {
       loadModels()
-      loadUserData()
     }
-  }, [user])
+  }, [user, models.length])
 
-  const loadChats = async () => {
-    try {
-      // Сначала загружаем из localStorage
-      const cachedChats = chatStorage.getChats()
-      if (cachedChats.length > 0) {
-        setChats(cachedChats)
-      }
 
-      // Затем загружаем свежие данные с сервера
-      const { data, error } = await supabase
-        .from('chats')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('updated_at', { ascending: false })
-
-      if (error) {
-        console.error('Ошибка загрузки чатов:', error)
-      } else {
-        const freshChats = data || []
-        setChats(freshChats)
-        chatStorage.setChats(freshChats)
-      }
-    } catch (error) {
-      console.error('Ошибка загрузки чатов:', error)
-    }
-  }
-
-  const loadUserData = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('tokens_balance, is_pro, daily_tokens_used')
-        .eq('id', user?.id)
-        .single()
-
-      if (!error && data) {
-        // Показываем оставшиеся токены (баланс минус использованные сегодня)
-        const remainingTokens = Math.max(0, (data.tokens_balance || 1250) - (data.daily_tokens_used || 0))
-        setUserTokens(remainingTokens)
-        setIsPro(data.is_pro || false)
-      }
-    } catch (error) {
-      console.error('Ошибка загрузки данных пользователя:', error)
-    }
-  }
 
 
   if (loading) {
@@ -180,8 +133,8 @@ export default function HomePage() {
         chatId = chatData.id
         setCurrentChatId(chatId)
         
-        // Обновляем список чатов
-        await loadChats()
+        // Обновляем список чатов через контекст
+        await refreshChats()
       }
 
       // Получаем токен сессии
@@ -322,10 +275,9 @@ export default function HomePage() {
       setSelectedChatId(undefined)
       setMessages([])
     }
-    // Обновляем список чатов в localStorage
+    // Обновляем список чатов через контекст
     const updatedChats = chats.filter(chat => chat.id !== chatId)
-    setChats(updatedChats)
-    chatStorage.setChats(updatedChats)
+    updateChats(updatedChats)
   }
 
   const clearChat = () => {

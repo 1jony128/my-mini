@@ -3,13 +3,14 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
 import { SupabaseProvider } from '@/components/providers/supabase-provider'
+import { AppProvider } from '@/components/providers/app-provider'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'AI Chat Pro - Умный чат с ИИ',
   description: 'Современный чат с искусственным интеллектом. Поддерживает GPT-4, Claude, DeepSeek и другие модели. Безопасно, быстро, удобно.',
-  keywords: 'AI чат, искусственный интеллект, GPT-4, Claude, DeepSeek, чат-бот, ИИ помощник',
+  keywords: 'AI чат, искусственный интеллект, GPT-4, Claude, DeepSeek, чат-бот, ИИ помощник, чат gpt, чат Claude, чат DeepSeek, gpt 4, gpt 5',
   authors: [{ name: 'AI Chat Pro Team' }],
   creator: 'AI Chat Pro',
   publisher: 'AI Chat Pro',
@@ -78,8 +79,10 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <SupabaseProvider>
-          {children}
-          <Toaster position="top-right" />
+          <AppProvider>
+            {children}
+            <Toaster position="top-right" />
+          </AppProvider>
         </SupabaseProvider>
       </body>
     </html>

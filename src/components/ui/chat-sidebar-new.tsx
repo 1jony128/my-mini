@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { Chat } from '@/types'
 import { chatStorage } from '@/lib/localStorage'
+import { useApp } from '@/components/providers/app-provider'
 
 interface ChatSidebarProps {
   currentChatId?: string
@@ -40,40 +41,10 @@ export function ChatSidebar({
   isOpen = false,
   onClose
 }: ChatSidebarProps) {
-  const [chats, setChats] = useState<Chat[]>([])
-  const [loading, setLoading] = useState(true)
+  const { chats, updateChats } = useApp()
+  const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    fetchChats()
-  }, [])
 
-  const fetchChats = async () => {
-    try {
-      // Сначала загружаем из localStorage
-      const cachedChats = chatStorage.getChats()
-      if (cachedChats.length > 0) {
-        setChats(cachedChats)
-      }
-
-      // Затем загружаем свежие данные с сервера
-      const { data, error } = await supabase
-        .from('chats')
-        .select('*')
-        .order('updated_at', { ascending: false })
-
-      if (error) {
-        console.error('Ошибка загрузки чатов:', error)
-      } else {
-        const freshChats = data || []
-        setChats(freshChats)
-        chatStorage.setChats(freshChats)
-      }
-    } catch (error) {
-      console.error('Ошибка загрузки чатов:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const handleDeleteChat = async (chatId: string) => {
     try {
@@ -86,8 +57,7 @@ export function ChatSidebar({
         console.error('Ошибка удаления чата:', error)
       } else {
         const updatedChats = chats.filter(chat => chat.id !== chatId)
-        setChats(updatedChats)
-        chatStorage.setChats(updatedChats)
+        updateChats(updatedChats)
         onDeleteChat(chatId)
       }
     } catch (error) {

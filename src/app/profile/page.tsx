@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSupabase } from '@/components/providers/supabase-provider'
+import { useApp } from '@/components/providers/app-provider'
 import { supabase } from '@/lib/supabase'
 import { motion } from 'framer-motion'
 import ProUsageStats from '@/components/ui/pro-usage-stats'
@@ -12,6 +13,7 @@ import toast from 'react-hot-toast'
 
 export default function ProfilePage() {
   const { user, loading } = useSupabase()
+  const { userTokens, isPro } = useApp()
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
   const [displayName, setDisplayName] = useState('')
@@ -19,8 +21,8 @@ export default function ProfilePage() {
     totalChats: 0,
     totalMessages: 0,
     tokensUsed: 0,
-    remainingTokens: 1250,
-    isPro: false
+    remainingTokens: userTokens,
+    isPro: isPro
   })
 
   useEffect(() => {
@@ -34,7 +36,7 @@ export default function ProfilePage() {
       loadUserData()
       loadUserStats()
     }
-  }, [user])
+  }, [user, userTokens, isPro])
 
   const loadUserData = async () => {
     try {
@@ -89,8 +91,8 @@ export default function ProfilePage() {
         totalChats: chatsCount || 0,
         totalMessages: messagesCount || 0,
         tokensUsed: totalTokensUsed,
-        remainingTokens: remainingTokens,
-        isPro: userData?.is_pro || false
+        remainingTokens: userTokens,
+        isPro: isPro
       })
     } catch (error) {
       console.error('Ошибка загрузки статистики:', error)
