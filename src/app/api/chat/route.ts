@@ -113,17 +113,15 @@ export async function POST(request: NextRequest) {
                // Сохраняем сообщение пользователя
                         const { data: userMsgData, error: userMsgError } = await supabaseAdmin
                .from('messages')
-               .insert([
-                 {
-                   chat_id: chatId,
-                   user_id: user.id,
-                   content: messages[messages.length - 1].content,
-                   role: 'user',
-                   model: model, // Сохраняем "deepseek" для пользователя
-                   tokens_used: estimateTokens(messages[messages.length - 1].content),
-                   created_at: new Date().toISOString(),
-                 },
-               ])
+               .insert({
+                 chat_id: chatId,
+                 user_id: user.id,
+                 content: messages[messages.length - 1].content,
+                 role: 'user',
+                 model: model, // Сохраняем "deepseek" для пользователя
+                 tokens_used: estimateTokens(messages[messages.length - 1].content),
+                 created_at: new Date().toISOString(),
+               } as any)
                .select()
                .single()
 
@@ -180,17 +178,15 @@ export async function POST(request: NextRequest) {
                            if (fullResponse) {
                              const { data: aiMsgData, error: aiMsgError } = await supabaseAdmin
                                .from('messages')
-                               .insert([
-                                 {
-                                   chat_id: chatId,
-                                   user_id: user.id,
-                                   content: fullResponse,
-                                   role: 'assistant',
-                                   model: model, // Сохраняем "deepseek" для пользователя
-                                   tokens_used: estimateTokens(fullResponse),
-                                   created_at: new Date().toISOString(),
-                                 },
-                               ])
+                               .insert({
+                                 chat_id: chatId,
+                                 user_id: user.id,
+                                 content: fullResponse,
+                                 role: 'assistant',
+                                 model: model, // Сохраняем "deepseek" для пользователя
+                                 tokens_used: estimateTokens(fullResponse),
+                                 created_at: new Date().toISOString(),
+                               } as any)
                                .select()
                                .single()
 
@@ -265,17 +261,15 @@ export async function POST(request: NextRequest) {
           // Сохраняем ответ AI
           const { error: aiMsgError } = await supabaseAdmin
             .from('messages')
-            .insert([
-              {
-                chat_id: chatId,
-                user_id: user.id,
-                content: fullResponse,
-                role: 'assistant',
-                model: model,
-                tokens_used: estimateTokens(fullResponse),
-                created_at: new Date().toISOString(),
-              },
-            ])
+            .insert({
+              chat_id: chatId,
+              user_id: user.id,
+              content: fullResponse,
+              role: 'assistant',
+              model: model,
+              tokens_used: estimateTokens(fullResponse),
+              created_at: new Date().toISOString(),
+            } as any)
             .select()
             .single()
 
