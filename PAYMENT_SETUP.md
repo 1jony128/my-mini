@@ -31,6 +31,28 @@ ALTER TABLE public.users ADD COLUMN IF NOT EXISTS last4 TEXT;
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS first6 TEXT;
 ```
 
+## 2. Исправление Edge Function
+
+В вашей Edge Function нужно заменить все обращения к таблице `profiles` на `users`:
+
+```javascript
+// Вместо:
+const { data: profile, error: profileError } = await supabase.from('profiles').select('email').eq('id', order.profile_id).single();
+
+// Используйте:
+const { data: profile, error: profileError } = await supabase.from('users').select('email').eq('id', order.user_id).single();
+
+// И в обновлении пользователя:
+const { error: userUpdateError } = await supabase.from('users').update({
+  isPro: true,
+  pro_active_date: newProActiveTo,
+  payment_method_id,
+  payment_method_type,
+  last4,
+  first6
+}).eq('id', order.user_id);
+```
+
 ## 2. Настройка переменных окружения
 
 Добавьте в `.env.local`:

@@ -1,38 +1,38 @@
--- Создаем таблицу profiles если её нет (для совместимости с Edge Function)
-CREATE TABLE IF NOT EXISTS public.profiles (
-    id UUID REFERENCES public.users(id) ON DELETE CASCADE PRIMARY KEY,
-    email TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+-- Исправление для Edge Function - работаем с таблицей users вместо profiles
 
--- Создаем триггер для автоматического создания профиля при создании пользователя
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
+-- Добавляем недостающие колонки в таблицу users для работы с платежами
+DO $$ 
 BEGIN
-    INSERT INTO public.profiles (id, email)
-    VALUES (NEW.id, NEW.email);
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+    -- Добавляем колонку isPro если её нет
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'isPro') THEN
+        ALTER TABLE public.users ADD COLUMN isPro BOOLEAN DEFAULT FALSE;
+    END IF;
+    
+    -- Добавляем колонку pro_active_date если её нет
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'pro_active_date') THEN
+        ALTER TABLE public.users ADD COLUMN pro_active_date TIMESTAMP WITH TIME ZONE;
+    END IF;
+    
+    -- Добавляем колонку payment_method_id если её нет
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'payment_method_id') THEN
+        ALTER TABLE public.users ADD COLUMN payment_method_id TEXT;
+    END IF;
+    
+    -- Добавляем колонку payment_method_type если её нет
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'payment_method_type') THEN
+        ALTER TABLE public.users ADD COLUMN payment_method_type TEXT;
+    END IF;
+    
+    -- Добавляем колонку last4 если её нет
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'last4') THEN
+        ALTER TABLE public.users ADD COLUMN last4 TEXT;
+    END IF;
+    
+    -- Добавляем колонку first6 если её нет
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'first6') THEN
+        ALTER TABLE public.users ADD COLUMN first6 TEXT;
+    END IF;
+END $$;
 
--- Создаем триггер если его нет
-DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
-CREATE TRIGGER on_auth_user_created
-    AFTER INSERT ON auth.users
-    FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
-
--- RLS политики для таблицы profiles
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Users can view own profile" ON public.profiles
-    FOR SELECT USING (auth.uid() = id);
-
-CREATE POLICY "Users can update own profile" ON public.profiles
-    FOR UPDATE USING (auth.uid() = id);
-
--- Синхронизируем существующих пользователей
-INSERT INTO public.profiles (id, email)
-SELECT id, email FROM public.users
-WHERE id NOT IN (SELECT id FROM public.profiles)
-ON CONFLICT (id) DO NOTHING;
+-- Добавляем колонку paid в таблицу orders если её нет
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS paid BOOLEAN DEFAULT FALSE;
