@@ -83,6 +83,15 @@
 - Конфигурация
 - Архитектура
 
+### [VERCEL_SETUP.md](./VERCEL_SETUP.md)
+**Назначение**: Настройка проекта через Vercel CLI
+**Содержание**:
+- Установка и подключение Vercel CLI
+- Управление переменными окружения
+- Деплой и мониторинг
+- Безопасность переменных
+- Полезные команды
+
 ---
 
 ## 🗄 База данных
@@ -180,6 +189,7 @@
 ├── 📄 PAYMENT_SETUP.md             # Настройка платежей
 ├── 📄 DEPLOYMENT.md                # Развертывание
 ├── 📄 TECHNICAL_REQUIREMENTS.md    # Технические требования
+├── 📄 VERCEL_SETUP.md              # Настройка Vercel CLI
 ├── 📁 supabase/
 │   ├── 📄 supabase-schema.sql      # Схема БД
 │   └── 📄 migrations/              # Миграции
@@ -204,6 +214,7 @@
 - **PRO система**: [PRO_CREDITS_SYSTEM.md](./PRO_CREDITS_SYSTEM.md)
 - **Платежи**: [PAYMENT_SETUP.md](./PAYMENT_SETUP.md)
 - **Развертывание**: [DEPLOYMENT.md](./DEPLOYMENT.md)
+- **Vercel CLI**: [VERCEL_SETUP.md](./VERCEL_SETUP.md)
 - **База данных**: [supabase-schema.sql](./supabase-schema.sql)
 
 ### По компонентам:
