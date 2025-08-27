@@ -230,8 +230,19 @@ export default function HomePage() {
         setCurrentChatId(chatId)
         setSelectedChatId(chatId)
         
-        // Обновляем список чатов
-        await refreshChats()
+        // СРАЗУ добавляем новый чат в начало списка локально
+        const newChat: Chat = {
+          id: chatData.id,
+          user_id: user.id,
+          title: chatData.title,
+          model: chatData.model,
+          created_at: chatData.created_at,
+          updated_at: chatData.updated_at
+        }
+        setChats(prev => [newChat, ...prev])
+        
+        // Обновляем список чатов в фоне для синхронизации
+        refreshChats()
       }
 
       // Получаем токен сессии
@@ -311,6 +322,19 @@ export default function HomePage() {
           messageStorage.setMessages(chatId, updatedMessages)
         }
         
+        // Перемещаем чат в начало списка, так как он был обновлен
+        setChats(prev => {
+          const chatIndex = prev.findIndex(chat => chat.id === chatId)
+          if (chatIndex > 0) {
+            const updatedChats = [...prev]
+            const [movedChat] = updatedChats.splice(chatIndex, 1)
+            // Обновляем updated_at для чата
+            movedChat.updated_at = new Date().toISOString()
+            return [movedChat, ...updatedChats]
+          }
+          return prev
+        })
+        
         // Очищаем streamingMessage после добавления в messages
         setStreamingMessage('')
       }
@@ -387,7 +411,7 @@ export default function HomePage() {
 
       // Обновляем список чатов
       const updatedChats = chats.filter(chat => chat.id !== chatId)
-      updateChats(updatedChats)
+      setChats(updatedChats)
 
       // Если удаляемый чат был выбран, очищаем сообщения
       if (selectedChatId === chatId) {
