@@ -8,6 +8,8 @@ import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
 import { PromptTemplates } from './prompt-templates'
+import { AI_MODELS } from '@/lib/ai-models'
+import { ProUpgradeBanner } from './pro-upgrade-banner'
 
 interface Message {
   id: string
@@ -60,6 +62,7 @@ export function ChatInterface({
   const [isTyping, setIsTyping] = useState(false)
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null)
   const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null)
+  const [showProBanner, setShowProBanner] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const copyToClipboard = async (text: string, type: 'message' | 'code', id: string) => {
@@ -85,6 +88,10 @@ export function ChatInterface({
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
+      // Блокируем отправку, если выбрана платная модель и пользователь не PRO
+      if (showProBanner && !isPro) {
+        return
+      }
       onSendMessage()
     }
   }
@@ -93,6 +100,35 @@ export function ChatInterface({
   useEffect(() => {
     scrollToBottom()
   }, [messages, isStreaming, streamingMessage])
+
+  // Проверяем, нужно ли показать PRO баннер
+  useEffect(() => {
+    const selectedModelData = models.find(m => m.id === selectedModel)
+    if (selectedModelData && !selectedModelData.is_free && !isPro) {
+      setShowProBanner(true)
+    } else {
+      setShowProBanner(false)
+    }
+  }, [selectedModel, models, isPro])
+
+  const getModelDisplayName = (modelId?: string): string => {
+    if (!modelId) return 'AI Assistant'
+    
+    // Ищем модель в AI_MODELS
+    const model = AI_MODELS.find(m => m.id === modelId)
+    if (model) {
+      return model.name
+    }
+    
+    // Если не найдена, возвращаем читаемое название
+    if (modelId === 'grok-4-latest') return 'Grok'
+    if (modelId.startsWith('deepseek/')) return 'GPT-4o'
+    if (modelId.startsWith('gpt-')) return 'GPT'
+    if (modelId.startsWith('claude-')) return 'Claude'
+    if (modelId.startsWith('gemini-')) return 'Gemini'
+    
+    return 'AI Assistant'
+  }
 
   const getMessageTimestamp = (message: Message): string => {
     // Приоритет: created_at -> timestamp -> текущее время
@@ -218,6 +254,12 @@ export function ChatInterface({
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-6 space-y-6 relative z-10">
+        {/* PRO Upgrade Banner */}
+        <ProUpgradeBanner
+          isVisible={showProBanner}
+          onClose={() => setShowProBanner(false)}
+          selectedModel={models.find(m => m.id === selectedModel)?.name}
+        />
         <AnimatePresence>
           {messages.length === 0 && (
             <motion.div
@@ -296,7 +338,7 @@ export function ChatInterface({
 
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-semibold">
-                    {message.role === 'user' ? 'Вы' : models.find(m => m.id === (message.model || selectedModel))?.name || (message.model || selectedModel)}
+                    {message.role === 'user' ? 'Вы' : getModelDisplayName(message.model)}
                   </span>
                   <span className={`text-xs px-2 py-1 rounded-full ${
                     message.role === 'user' 
@@ -398,7 +440,7 @@ export function ChatInterface({
             >
               <div className="max-w-[75%] px-6 py-4 rounded-2xl bg-background-secondary text-text-primary border border-border shadow-md">
                 <div className="flex items-center space-x-3 mb-2">
-                  <span className="text-sm font-semibold">{selectedModel}</span>
+                  <span className="text-sm font-semibold">{getModelDisplayName(selectedModel)}</span>
                   <span className="text-xs opacity-70 bg-black/10 px-2 py-1 rounded-full">
                     {new Date().toLocaleTimeString('ru-RU', { 
                       hour: '2-digit', 
@@ -485,12 +527,12 @@ export function ChatInterface({
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Напишите сообщение..."
+              placeholder={showProBanner && !isPro ? "Обновитесь до PRO для использования этой модели..." : "Напишите сообщение..."}
               className={`w-full bg-background border border-border rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-primary text-text-primary placeholder-text-secondary shadow-sm ${
                 isMobile ? 'p-2 pr-12 text-sm' : 'p-4 pr-20'
-              }`}
+              } ${showProBanner && !isPro ? 'opacity-50' : ''}`}
               rows={1}
-              disabled={isLoading}
+              disabled={isLoading || (showProBanner && !isPro)}
             />
           
           </div>
@@ -504,6 +546,22 @@ export function ChatInterface({
             }`}
           >
             <Mic className={`${isMobile ? 'w-4 h-4' : 'w-6 h-6'}`} />
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={onSendMessage}
+            disabled={isLoading || !inputMessage.trim() || (showProBanner && !isPro)}
+            className={`flex items-center justify-center h-full bg-primary hover:bg-primary-dark text-white rounded-2xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+              isMobile ? 'p-2' : 'p-3'
+            }`}
+          >
+            {isLoading ? (
+              <Loader2 className={`${isMobile ? 'w-4 h-4' : 'w-6 h-6'} animate-spin`} />
+            ) : (
+              <Send className={`${isMobile ? 'w-4 h-4' : 'w-6 h-6'}`} />
+            )}
           </motion.button>
         </div>
 

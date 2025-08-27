@@ -49,7 +49,7 @@ export const AI_MODELS: AIModel[] = [
     daily_limit: 1000,
   },
   {
-    id: 'gpt-3.5-turbo',
+    id: 'deepseek',
     name: 'GPT-3.5 Turbo',
     provider: 'openrouter',
     is_free: true,
@@ -57,40 +57,32 @@ export const AI_MODELS: AIModel[] = [
     daily_limit: 1000,
   },
   {
-    id: 'claude-3-haiku',
-    name: 'Claude 3 Haiku',
-    provider: 'openrouter',
-    is_free: true,
-    max_tokens: 4096,
-    daily_limit: 1000,
-  },
-  {
-    id: 'gemini-pro',
-    name: 'Gemini Pro',
-    provider: 'openrouter',
-    is_free: true,
-    max_tokens: 4096,
-    daily_limit: 1000,
-  },
-  {
     id: 'gpt-4',
-    name: 'GPT-4 (Grok)',
+    name: 'GPT-4',
     provider: 'openrouter',
     is_free: false,
     max_tokens: 8192,
     daily_limit: 0, // безлимит для про
   },
   {
+    id: 'gemini-pro',
+    name: 'Gemini Pro',
+    provider: 'openrouter',
+    is_free: false,
+    max_tokens: 4096,
+    daily_limit: 1000,
+  },
+  {
     id: 'claude-3-sonnet',
-    name: 'Claude 3 Sonnet (Grok)',
+    name: 'Claude 3 Sonnet',
     provider: 'openrouter',
     is_free: false,
     max_tokens: 8192,
     daily_limit: 0,
   },
   {
-    id: 'claude-3-opus',
-    name: 'Claude 3 Opus (Grok)',
+    id: 'claude-3-opus-max',
+    name: 'Claude 3 Opus Max',
     provider: 'openrouter',
     is_free: false,
     max_tokens: 8192,
@@ -137,7 +129,7 @@ export async function generateResponse(
     // Добавляем системное сообщение с правилами ИИ
     const systemMessage = {
       role: 'system' as const,
-      content: `Ты - полезный ИИ-ассистент. Следуй этим правилам:\n\n${userSettings.ai_rules}`
+      content: `Ты - полезный ИИ-ассистент, если спросят какая у тебя модель, отвечай что ты ${model.name}. Следуй этим правилам:\n\n${userSettings.ai_rules}`
     }
     
     // Вставляем системное сообщение в начало

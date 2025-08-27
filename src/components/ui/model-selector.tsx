@@ -5,6 +5,7 @@ import { ChevronDown, Check, AlertCircle, Zap, Crown, Lock } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSupabase } from '@/components/providers/supabase-provider'
 import { getModelCost, isModelAvailableForPlan, getAvailableModelsForPlan } from '@/lib/pro-credits'
+import { ProUpgradeBanner } from './pro-upgrade-banner'
 
 interface Model {
   id: string
@@ -27,6 +28,7 @@ export function ModelSelector({ models, selectedModel, onModelChange, isLoading 
   const [modelStatus, setModelStatus] = useState<Record<string, 'available' | 'unavailable' | 'unknown'>>({})
   const [userPlan, setUserPlan] = useState<string | null>(null)
   const [isPro, setIsPro] = useState(false)
+  const [showProBanner, setShowProBanner] = useState(false)
   const { user, supabase } = useSupabase()
 
   const selectedModelData = models.find(m => m.id === selectedModel)
@@ -135,6 +137,20 @@ export function ModelSelector({ models, selectedModel, onModelChange, isLoading 
     return null
   }
 
+  const handleModelChange = (modelId: string) => {
+    const model = models.find(m => m.id === modelId)
+    
+    // Если выбрана платная модель и пользователь не PRO
+    if (model && !model.is_free && !isPro) {
+      setShowProBanner(true)
+      return // Не меняем модель
+    }
+    
+    // Если все ок, меняем модель
+    onModelChange(modelId)
+    setIsOpen(false)
+  }
+
   return (
     <div className="relative">
       <motion.button
@@ -184,8 +200,7 @@ export function ModelSelector({ models, selectedModel, onModelChange, isLoading 
                   whileHover={{ backgroundColor: 'rgba(0, 0, 0, 0.05)' }}
                   onClick={() => {
                     if (isAvailable) {
-                      onModelChange(model.id)
-                      setIsOpen(false)
+                      handleModelChange(model.id)
                     }
                   }}
                   disabled={!isAvailable}
@@ -218,6 +233,13 @@ export function ModelSelector({ models, selectedModel, onModelChange, isLoading 
           </motion.div>
         )}
       </AnimatePresence>
+      
+      {/* PRO Upgrade Banner */}
+      <ProUpgradeBanner
+        isVisible={showProBanner}
+        onClose={() => setShowProBanner(false)}
+        selectedModel={models.find(m => !m.is_free)?.name}
+      />
     </div>
   )
 }

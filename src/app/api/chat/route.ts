@@ -28,6 +28,20 @@ export async function POST(request: NextRequest) {
       .eq('id', user.id)
       .single()
 
+    // Проверяем доступность модели для пользователя
+    const { data: modelData } = await supabaseAdmin
+      .from('ai_models')
+      .select('is_free')
+      .eq('id', model)
+      .single()
+
+    // Если модель платная и пользователь не PRO, блокируем доступ
+    if (modelData && !(modelData as any).is_free && !(userData as any)?.is_pro) {
+      return NextResponse.json({ 
+        error: 'Эта модель доступна только для PRO пользователей. Обновитесь до PRO для доступа к платным моделям.' 
+      }, { status: 403 })
+    }
+
     // Типизируем данные пользователя
     const userDataTyped = userData as {
       tokens_balance?: number
