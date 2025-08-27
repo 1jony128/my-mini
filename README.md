@@ -93,6 +93,7 @@ npm run lint
 - [PRO_CREDITS_SYSTEM.md](./PRO_CREDITS_SYSTEM.md) - Система PRO кредитов
 - [PAYMENT_SETUP.md](./PAYMENT_SETUP.md) - Настройка платежей
 - [DEPLOYMENT.md](./DEPLOYMENT.md) - Руководство по развертыванию
+- [VERCEL_DEPLOYMENT_GUIDE.md](./VERCEL_DEPLOYMENT_GUIDE.md) - Подробная инструкция по деплою в Vercel
 - [TECHNICAL_REQUIREMENTS.md](./TECHNICAL_REQUIREMENTS.md) - Технические требования
 
 ### 📊 Последние изменения (19 декабря 2024)
