@@ -9,10 +9,12 @@ import { useTheme } from '@/components/providers/theme-provider'
 import toast from 'react-hot-toast'
 
 interface ChatSidebarProps {
+  chats: Chat[]
   currentChatId?: string
   onChatSelect: (chatId: string) => void
   onNewChat: () => void
   onDeleteChat: (chatId: string) => void
+  onUpdateChatTitle?: (chatId: string, newTitle: string) => void
   onSettings?: () => void
   onUpgrade?: () => void
   onProfile?: () => void
@@ -28,10 +30,12 @@ interface ChatSidebarProps {
 }
 
 export function ChatSidebar({
+  chats,
   currentChatId,
   onChatSelect,
   onNewChat,
   onDeleteChat,
+  onUpdateChatTitle,
   onSettings,
   onUpgrade,
   onProfile,
@@ -45,7 +49,7 @@ export function ChatSidebar({
   onClose,
   canCreateChat
 }: ChatSidebarProps) {
-  const { chats, updateChats, updateChatTitle } = useApp()
+  const { updateChatTitle } = useApp()
   const { theme, toggleTheme } = useTheme()
   const [loading, setLoading] = useState(false)
   const [editingChatId, setEditingChatId] = useState<string | null>(null)
@@ -68,25 +72,8 @@ export function ChatSidebar({
       return
     }
 
-    try {
-      const { error } = await supabase
-        .from('chats')
-        .delete()
-        .eq('id', chatId)
-
-      if (error) {
-        console.error('Ошибка удаления чата:', error)
-        toast.error('Ошибка удаления чата')
-      } else {
-        const updatedChats = chats.filter(chat => chat.id !== chatId)
-        updateChats(updatedChats)
-        onDeleteChat(chatId)
-        toast.success('Чат успешно удален')
-      }
-    } catch (error) {
-      console.error('Ошибка удаления чата:', error)
-      toast.error('Ошибка удаления чата')
-    }
+    // Вызываем переданную функцию для удаления
+    onDeleteChat(chatId)
   }
 
   const handleEditChat = (chatId: string, currentTitle: string) => {
@@ -98,7 +85,11 @@ export function ChatSidebar({
     if (!editingChatId || !editingTitle.trim()) return
 
     try {
-      await updateChatTitle(editingChatId, editingTitle.trim())
+      if (onUpdateChatTitle) {
+        await onUpdateChatTitle(editingChatId, editingTitle.trim())
+      } else {
+        await updateChatTitle(editingChatId, editingTitle.trim())
+      }
       setEditingChatId(null)
       setEditingTitle('')
     } catch (error) {

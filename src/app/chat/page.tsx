@@ -427,6 +427,31 @@ export default function HomePage() {
     }
   }
 
+  const handleUpdateChatTitle = async (chatId: string, newTitle: string) => {
+    try {
+      const { error } = await supabase
+        .from('chats')
+        .update({ title: newTitle })
+        .eq('id', chatId)
+
+      if (error) {
+        console.error('Ошибка обновления названия чата:', error)
+        toast.error('Ошибка обновления названия чата')
+        return
+      }
+
+      // Обновляем чат в локальном состоянии
+      setChats(prev => prev.map(chat => 
+        chat.id === chatId ? { ...chat, title: newTitle } : chat
+      ))
+
+      toast.success('Название чата обновлено')
+    } catch (error) {
+      console.error('Ошибка обновления названия чата:', error)
+      toast.error('Ошибка обновления названия чата')
+    }
+  }
+
   const clearChat = () => {
     setMessages([])
     setStreamingMessage('')
@@ -462,9 +487,11 @@ export default function HomePage() {
           onChatSelect={handleSelectChat}
           onNewChat={handleNewChat}
           onDeleteChat={handleDeleteChat}
+          onUpdateChatTitle={handleUpdateChatTitle}
           onSettings={() => router.push('/settings')}
           onProfile={() => router.push('/profile')}
           onUpgrade={() => router.push('/upgrade')}
+          isPro={isPro}
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
           canCreateChat={canCreateChat}
@@ -514,9 +541,11 @@ export default function HomePage() {
           onChatSelect={handleSelectChat}
           onNewChat={handleNewChat}
           onDeleteChat={handleDeleteChat}
+          onUpdateChatTitle={handleUpdateChatTitle}
           onSettings={() => router.push('/settings')}
           onProfile={() => router.push('/profile')}
           onUpgrade={() => router.push('/upgrade')}
+          isPro={isPro}
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
           canCreateChat={canCreateChat}
