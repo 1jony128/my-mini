@@ -9,17 +9,17 @@ import { ModelSelector } from '@/components/ui/model-selector'
 import { AI_MODELS } from '@/lib/ai-models'
 import { Message, Chat } from '@/types'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Send, Mic, Copy, Check, ArrowLeft, Edit3, Trash2 } from 'lucide-react'
+import { Send, Mic, Copy, Check, ArrowLeft, Edit3, Trash2, Menu } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { ReactMarkdown } from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { supabase } from '@/lib/supabase'
 import { messageStorage } from '@/lib/localStorage'
+import { ChatInterface } from '@/components/ui/chat-interface'
 
 export default function HomePage() {
   const { user, loading } = useSupabase()
-  const { chats, userTokens, isPro, refreshChats, updateChats, canCreateChat } = useSupabase()
   const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -32,7 +32,84 @@ export default function HomePage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [chats, setChats] = useState<Chat[]>([])
+  const [userTokens, setUserTokens] = useState(1250)
+  const [isPro, setIsPro] = useState(false)
   const router = useRouter()
+
+  // Загружаем данные пользователя
+  useEffect(() => {
+    const loadUserData = async () => {
+      if (!user) return
+      
+      try {
+        const { data: userData } = await supabase
+          .from('users')
+          .select('tokens_balance, is_pro, daily_tokens_used')
+          .eq('id', user.id)
+          .single()
+
+        if (userData) {
+          setUserTokens((userData as any).tokens_balance || 1250)
+          setIsPro((userData as any).is_pro || false)
+        }
+      } catch (error) {
+        console.error('Ошибка загрузки данных пользователя:', error)
+      }
+    }
+
+    loadUserData()
+  }, [user])
+
+  // Загружаем чаты пользователя
+  useEffect(() => {
+    const loadChats = async () => {
+      if (!user) return
+      
+      try {
+        const { data: chatsData } = await supabase
+          .from('chats')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('updated_at', { ascending: false })
+
+        if (chatsData) {
+          setChats(chatsData as Chat[])
+        }
+      } catch (error) {
+        console.error('Ошибка загрузки чатов:', error)
+      }
+    }
+
+    loadChats()
+  }, [user])
+
+  // Функции для работы с чатами
+  const refreshChats = async () => {
+    if (!user) return
+    
+    try {
+      const { data: chatsData } = await supabase
+        .from('chats')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('updated_at', { ascending: false })
+
+      if (chatsData) {
+        setChats(chatsData as Chat[])
+      }
+    } catch (error) {
+      console.error('Ошибка обновления чатов:', error)
+    }
+  }
+
+  const updateChats = (newChats: Chat[]) => {
+    setChats(newChats)
+  }
+
+  const canCreateChat = () => {
+    return isPro || chats.length < 10
+  }
 
   // Отладочная информация (убираем для чистоты консоли)
 
@@ -123,31 +200,37 @@ export default function HomePage() {
           toast.error('Достигнут лимит чатов (10) для бесплатного плана. Перейдите на PRO для создания неограниченного количества чатов.')
           // Удаляем сообщение пользователя при ошибке
           setMessages(prev => prev.filter(msg => msg.id !== userMessage.id))
-          setIsStreaming(false)
           setIsLoading(false)
+          setIsStreaming(false)
           return
         }
 
+        // Создаем новый чат
         const { data: chatData, error: chatError } = await supabase
           .from('chats')
           .insert({
             user_id: user.id,
             title: currentInput.slice(0, 50) + (currentInput.length > 50 ? '...' : ''),
-            model: selectedModel,
-          })
+            model: selectedModel
+          } as any)
           .select()
           .single()
 
         if (chatError) {
           console.error('Ошибка создания чата:', chatError)
           toast.error('Ошибка создания чата')
+          // Удаляем сообщение пользователя при ошибке
+          setMessages(prev => prev.filter(msg => msg.id !== userMessage.id))
+          setIsLoading(false)
+          setIsStreaming(false)
           return
         }
 
         chatId = chatData.id
         setCurrentChatId(chatId)
+        setSelectedChatId(chatId)
         
-        // Обновляем список чатов через контекст
+        // Обновляем список чатов
         await refreshChats()
       }
 
@@ -251,53 +334,73 @@ export default function HomePage() {
       toast.error('Достигнут лимит чатов (10) для бесплатного плана. Перейдите на PRO для создания неограниченного количества чатов.')
       return
     }
-    
-    setMessages([])
+
+    // Очищаем текущий чат
     setSelectedChatId(undefined)
     setCurrentChatId(null)
-    setStreamingMessage('')
+    setMessages([])
     setInputMessage('')
+    setError(null)
   }
 
   const handleSelectChat = async (chatId: string) => {
-    setSelectedChatId(chatId)
-    setCurrentChatId(chatId)
-    
-    // Сначала загружаем сообщения из localStorage для быстрого отображения
-    const cachedMessages = messageStorage.getMessages(chatId)
-    if (cachedMessages.length > 0) {
-      setMessages(cachedMessages)
-    }
-
-    // Затем загружаем свежие сообщения с сервера
     try {
-      const { data, error } = await supabase
+      setSelectedChatId(chatId)
+      setCurrentChatId(chatId)
+      setMessages([])
+      setError(null)
+
+      // Загружаем сообщения для выбранного чата
+      const { data: messagesData, error: messagesError } = await supabase
         .from('messages')
         .select('*')
         .eq('chat_id', chatId)
         .order('created_at', { ascending: true })
 
-      if (error) {
-        console.error('Ошибка загрузки сообщений:', error)
-      } else {
-        const freshMessages = data || []
-        setMessages(freshMessages)
-        // Сохраняем в localStorage
-        messageStorage.setMessages(chatId, freshMessages)
+      if (messagesError) {
+        console.error('Ошибка загрузки сообщений:', messagesError)
+        toast.error('Ошибка загрузки сообщений')
+        return
+      }
+
+      if (messagesData) {
+        setMessages(messagesData as Message[])
       }
     } catch (error) {
-      console.error('Ошибка загрузки сообщений:', error)
+      console.error('Ошибка выбора чата:', error)
+      toast.error('Ошибка выбора чата')
     }
   }
 
-  const handleDeleteChat = (chatId: string) => {
-    if (selectedChatId === chatId) {
-      setSelectedChatId(undefined)
-      setMessages([])
+  const handleDeleteChat = async (chatId: string) => {
+    try {
+      const { error } = await supabase
+        .from('chats')
+        .delete()
+        .eq('id', chatId)
+
+      if (error) {
+        console.error('Ошибка удаления чата:', error)
+        toast.error('Ошибка удаления чата')
+        return
+      }
+
+      // Обновляем список чатов
+      const updatedChats = chats.filter(chat => chat.id !== chatId)
+      updateChats(updatedChats)
+
+      // Если удаляемый чат был выбран, очищаем сообщения
+      if (selectedChatId === chatId) {
+        setSelectedChatId(undefined)
+        setCurrentChatId(null)
+        setMessages([])
+      }
+
+      toast.success('Чат удален')
+    } catch (error) {
+      console.error('Ошибка удаления чата:', error)
+      toast.error('Ошибка удаления чата')
     }
-    // Обновляем список чатов через контекст
-    const updatedChats = chats.filter(chat => chat.id !== chatId)
-    updateChats(updatedChats)
   }
 
   const clearChat = () => {
@@ -345,7 +448,7 @@ export default function HomePage() {
           isMobile={isMobile}
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
-          canCreateChat={canCreateChat}
+          canCreateChat={isPro} // Используем isPro для определения возможности создания чата
         />
       )}
 
@@ -402,6 +505,7 @@ export default function HomePage() {
           isMobile={true}
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
+          canCreateChat={canCreateChat}
         />
       )}
     </div>
