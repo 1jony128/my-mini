@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Чат GPT без VPN | Бесплатный доступ к GPT-4 без VPN',
     description: 'Чат GPT без VPN - бесплатный доступ к GPT-4, Claude, DeepSeek без необходимости VPN. Общайтесь с ИИ без ограничений.',
-    url: 'https://aichatpro.com/gpt-bez-vpn',
+    url: 'https://aichat-pro.ru/gpt-bez-vpn',
     siteName: 'ChatAIPRO',
     locale: 'ru_RU',
     type: 'website',

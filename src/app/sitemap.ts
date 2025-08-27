@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://aichatpro.com'
+  const baseUrl = 'https://aichat-pro.ru'
   
   return [
     // Главные страницы

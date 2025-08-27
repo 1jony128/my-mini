@@ -21,14 +21,14 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://aichatpro.com'),
+  metadataBase: new URL('https://aichat-pro.ru'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     title: 'ChatAIPRO - Чат GPT без VPN | Бесплатный доступ к ИИ',
     description: 'Чат GPT без VPN - бесплатный доступ к GPT-4, Claude, DeepSeek и другим ИИ моделям. Общайтесь с искусственным интеллектом без ограничений.',
-    url: 'https://aichatpro.com',
+    url: 'https://aichat-pro.ru',
     siteName: 'ChatAIPRO',
     images: [
       {
@@ -88,10 +88,10 @@ export default function RootLayout({
               "@type": "WebSite",
               "name": "ChatAIPRO",
               "description": "Чат GPT без VPN - бесплатный доступ к GPT-4, Claude, DeepSeek и другим ИИ моделям",
-              "url": "https://aichatpro.com",
+              "url": "https://aichat-pro.ru",
               "potentialAction": {
                 "@type": "SearchAction",
-                "target": "https://aichatpro.com/chat?q={search_term_string}",
+                "target": "https://aichat-pro.ru/chat?q={search_term_string}",
                 "query-input": "required name=search_term_string"
               }
             })

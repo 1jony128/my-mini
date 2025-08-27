@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/api/', '/admin/', '/private/'],
     },
-    sitemap: 'https://aichatpro.com/sitemap.xml',
+    sitemap: 'https://aichat-pro.ru/sitemap.xml',
   }
 }
