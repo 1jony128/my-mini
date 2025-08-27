@@ -72,11 +72,16 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <head>
+        {/* Favicon для разных устройств и браузеров */}
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        
+        {/* Web App Manifest */}
         <link rel="manifest" href="/manifest.json" />
+        
+        {/* Sitemap */}
         <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
+        
+        {/* Meta теги */}
         <meta name="theme-color" content="#3B82F6" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         
