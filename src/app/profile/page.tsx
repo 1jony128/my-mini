@@ -25,6 +25,11 @@ export default function ProfilePage() {
     remainingTokens: userTokens,
     isPro: isPro
   })
+  const [userPlanData, setUserPlanData] = useState({
+    isPro: false,
+    planType: null,
+    expiresAt: null
+  })
 
   useEffect(() => {
     if (!loading && !user) {
@@ -43,12 +48,23 @@ export default function ProfilePage() {
     try {
       const { data, error } = await supabase
         .from('users')
-        .select('*')
+        .select('display_name, is_pro, pro_plan_type, pro_active_date')
         .eq('id', user?.id)
         .single()
 
       if (!error && data) {
         setDisplayName(data.display_name || user?.email?.split('@')[0] || 'Пользователь')
+        // Обновляем userStats с реальными данными из БД
+        setUserStats(prev => ({
+          ...prev,
+          isPro: data.is_pro || false
+        }))
+        // Сохраняем данные о плане
+        setUserPlanData({
+          isPro: data.is_pro || false,
+          planType: data.pro_plan_type,
+          expiresAt: data.pro_active_date
+        })
       } else {
         setDisplayName(user?.email?.split('@')[0] || 'Пользователь')
       }
@@ -75,7 +91,7 @@ export default function ProfilePage() {
       // Загружаем данные пользователя для токенов и статуса Pro
       const { data: userData, error: userError } = await supabase
         .from('users')
-        .select('tokens_balance, daily_tokens_used, is_pro')
+        .select('tokens_balance, daily_tokens_used, is_pro, pro_plan_type, pro_active_date')
         .eq('id', user?.id)
         .single()
 
@@ -93,7 +109,7 @@ export default function ProfilePage() {
         totalMessages: messagesCount || 0,
         tokensUsed: totalTokensUsed,
         remainingTokens: userTokens,
-        isPro: isPro
+        isPro: userData?.is_pro || false // Используем реальные данные из БД
       })
     } catch (error) {
       console.error('Ошибка загрузки статистики:', error)
@@ -238,7 +254,7 @@ export default function ProfilePage() {
               )}
               <p className="text-text-secondary">{user.email}</p>
             </div>
-            {userStats.isPro && (
+            {userPlanData.isPro && (
               <div className="flex items-center space-x-2 px-3 py-1 bg-secondary/10 rounded-full">
                 <Crown className="w-4 h-4 text-secondary" />
                 <span className="text-sm font-medium text-secondary">PRO</span>
@@ -286,18 +302,28 @@ export default function ProfilePage() {
               <div className="w-10 h-10 bg-warning/10 rounded-lg flex items-center justify-center">
                 <Zap className="w-5 h-5 text-warning" />
               </div>
-              <div>
+              <div className="flex-1 text-left">
                 <p className="text-lg font-bold text-text-primary">
-                  {userStats.isPro ? 'PRO' : 'Free'}
+                  {userPlanData.isPro ? 'PRO' : 'Free'}
                 </p>
                 <p className="text-sm text-text-secondary">
-                  {userStats.isPro ? 'Текущий план' : 'Статус аккаунта'}
+                  {userPlanData.isPro ? 
+                    (userPlanData.planType === 'weekly' ? 'Недельный план' :
+                     userPlanData.planType === 'monthly' ? 'Месячный план' :
+                     userPlanData.planType === 'yearly' ? 'Годовой план' :
+                     userPlanData.planType === 'sale20' ? 'Недельный план' :
+                     userPlanData.planType === 'month' ? 'Месячный план' :
+                     userPlanData.planType === 'year' ? 'Годовой план' : 'PRO план') 
+                    : 'Starter базовый план'}
                 </p>
-                {userStats.isPro && (
+                {userPlanData.isPro && userPlanData.expiresAt && (
                   <p className="text-xs text-text-secondary mt-1">
-                    Управляйте подпиской и лимитами
+                    Активен до: {new Date(userPlanData.expiresAt).toLocaleDateString('ru-RU')}
                   </p>
                 )}
+              </div>
+              <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                <User className="w-4 h-4 text-primary" />
               </div>
             </motion.button>
           </div>
@@ -344,7 +370,7 @@ export default function ProfilePage() {
         </motion.div>
 
         {/* Статистика PRO */}
-        {userStats.isPro && (
+        {userPlanData.isPro && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -369,7 +395,7 @@ export default function ProfilePage() {
             className="w-full p-4 bg-secondary text-white rounded-xl font-semibold hover:bg-secondary/90 transition-colors flex items-center justify-center space-x-2"
           >
             <Crown className="w-5 h-5" />
-            <span>{userStats.isPro ? 'Управление подпиской' : 'Перейти на PRO'}</span>
+            <span>{userPlanData.isPro ? 'Управление подпиской' : 'Перейти на PRO'}</span>
           </motion.button>
 
           <motion.button
