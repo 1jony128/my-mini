@@ -161,7 +161,7 @@ export function ChatSidebar({
                 {isPro ? 'PRO' : 'Free'}
               </p>
               <p className="text-sm text-text-secondary">
-                {isPro ? 'Неограниченно' : 'Starter базовый план'}
+                {isPro ? 'Повышенные лимиты' : 'Starter базовый план'}
               </p>
             </div>
             <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">

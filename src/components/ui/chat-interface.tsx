@@ -15,6 +15,7 @@ interface Message {
   content: string
   timestamp?: Date
   created_at?: string
+  model?: string
 }
 
 interface ChatInterfaceProps {
@@ -160,7 +161,7 @@ export function ChatInterface({
       <motion.div 
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className={`flex items-center justify-between border-b border-border bg-background ${
+        className={`flex items-center justify-end border-b border-border bg-background ${
           isMobile ? 'p-2' : 'p-6'
         }`}
       >
@@ -295,7 +296,7 @@ export function ChatInterface({
 
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-semibold">
-                    {message.role === 'user' ? 'Вы' : selectedModel}
+                    {message.role === 'user' ? 'Вы' : models.find(m => m.id === (message.model || selectedModel))?.name || (message.model || selectedModel)}
                   </span>
                   <span className={`text-xs px-2 py-1 rounded-full ${
                     message.role === 'user' 
@@ -360,7 +361,7 @@ export function ChatInterface({
             >
               <div className="max-w-[75%] px-6 py-4 rounded-2xl bg-background-secondary text-text-primary border border-border shadow-md">
                 <div className="flex items-center space-x-3 mb-2">
-                  <span className="text-sm font-semibold">{selectedModel}</span>
+                  <span className="text-sm font-semibold">{models.find(m => m.id === selectedModel)?.name || selectedModel}</span>
                   <span className="text-xs opacity-70 bg-black/10 px-2 py-1 rounded-full">
                     {new Date().toLocaleTimeString('ru-RU', { 
                       hour: '2-digit', 

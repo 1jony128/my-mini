@@ -5,6 +5,7 @@ import { Crown, Zap, Clock, TrendingUp } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { SafeNumber } from '@/components/ui/safe-number'
 import { getModelCost, getAvailableModelsForPlan, MODEL_COST_MULTIPLIERS } from '@/lib/pro-credits'
+import { supabase } from '@/lib/supabase'
 
 interface ProUsageData {
   today: {
@@ -25,11 +26,26 @@ export default function ProUsageStats() {
   const [usageData, setUsageData] = useState<ProUsageData | null>(null)
   const [loading, setLoading] = useState(true)
   const [availableModels, setAvailableModels] = useState<string[]>([])
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchUsageData = async () => {
       try {
-        const response = await fetch('/api/pro/usage')
+        // Получаем токен сессии
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        if (!session?.access_token) {
+          console.error('No access token available')
+          setError('Не авторизован')
+          return
+        }
+
+        const response = await fetch('/api/pro/usage', {
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+        })
+        
         if (response.ok) {
           const data = await response.json()
           setUsageData(data)
@@ -39,9 +55,19 @@ export default function ProUsageStats() {
             const models = getAvailableModelsForPlan(data.user.plan_type as any)
             setAvailableModels(models)
           }
+        } else if (response.status === 401) {
+          console.error('Unauthorized access to PRO usage')
+          setError('Не авторизован')
+        } else if (response.status === 403) {
+          console.error('PRO subscription required')
+          setError('Требуется PRO подписка')
+        } else {
+          console.error('Error fetching PRO usage:', response.status)
+          setError('Ошибка загрузки данных')
         }
       } catch (error) {
         console.error('Error fetching PRO usage:', error)
+        setError('Ошибка загрузки данных')
       } finally {
         setLoading(false)
       }
@@ -60,6 +86,16 @@ export default function ProUsageStats() {
             <div className="h-3 bg-muted rounded"></div>
             <div className="h-3 bg-muted rounded w-2/3"></div>
           </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="bg-card border border-border rounded-lg p-4">
+        <div className="text-center text-text-secondary">
+          <p>{error}</p>
         </div>
       </div>
     )

@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSupabase } from '@/components/providers/supabase-provider'
+import { useApp } from '@/components/providers/app-provider'
 import { ChatSidebar } from '@/components/ui/chat-sidebar-new'
 import { ModelSelector } from '@/components/ui/model-selector'
 import { AI_MODELS } from '@/lib/ai-models'
@@ -35,71 +36,37 @@ export default function HomePage() {
   const [chats, setChats] = useState<Chat[]>([])
   const [userTokens, setUserTokens] = useState(1250)
   const [isPro, setIsPro] = useState(false)
+  const [isLoadingModels, setIsLoadingModels] = useState(false)
   const router = useRouter()
 
-  // Загружаем данные пользователя
+  // Используем данные из app-provider
+  const appContext = useApp()
+  const { chats: appChats, userTokens: appUserTokens, isPro: appIsPro, isLoading: appIsLoading } = appContext || {}
+
+  // Синхронизируем данные из app-provider с локальным состоянием
   useEffect(() => {
-    const loadUserData = async () => {
-      if (!user) return
-      
-      try {
-        const { data: userData } = await supabase
-          .from('users')
-          .select('tokens_balance, is_pro, daily_tokens_used')
-          .eq('id', user.id)
-          .single()
-
-        if (userData) {
-          setUserTokens((userData as any).tokens_balance || 1250)
-          setIsPro((userData as any).is_pro || false)
-        }
-      } catch (error) {
-        console.error('Ошибка загрузки данных пользователя:', error)
-      }
+    if (appChats && !appIsLoading) {
+      setChats(appChats)
     }
+  }, [appChats, appIsLoading])
 
-    loadUserData()
-  }, [user])
-
-  // Загружаем чаты пользователя
   useEffect(() => {
-    const loadChats = async () => {
-      if (!user) return
-      
-      try {
-        const { data: chatsData } = await supabase
-          .from('chats')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('updated_at', { ascending: false })
-
-        if (chatsData) {
-          setChats(chatsData as Chat[])
-        }
-      } catch (error) {
-        console.error('Ошибка загрузки чатов:', error)
-      }
+    if (appUserTokens !== undefined && !appIsLoading) {
+      setUserTokens(appUserTokens)
     }
+  }, [appUserTokens, appIsLoading])
 
-    loadChats()
-  }, [user])
+  useEffect(() => {
+    if (appIsPro !== undefined && !appIsLoading) {
+      setIsPro(appIsPro)
+    }
+  }, [appIsPro, appIsLoading])
 
   // Функции для работы с чатами
   const refreshChats = async () => {
-    if (!user) return
-    
-    try {
-      const { data: chatsData } = await supabase
-        .from('chats')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('updated_at', { ascending: false })
-
-      if (chatsData) {
-        setChats(chatsData as Chat[])
-      }
-    } catch (error) {
-      console.error('Ошибка обновления чатов:', error)
+    // Используем функцию из app-provider
+    if (appContext?.refreshChats) {
+      await appContext.refreshChats()
     }
   }
 
@@ -135,6 +102,8 @@ export default function HomePage() {
   useEffect(() => {
     // Загружаем модели через API только один раз
     const loadModels = async () => {
+      if (isLoadingModels) return
+      setIsLoadingModels(true)
       try {
         const response = await fetch('/api/models')
         if (response.ok) {
@@ -143,18 +112,20 @@ export default function HomePage() {
         }
       } catch (error) {
         console.error('Ошибка загрузки моделей:', error)
+      } finally {
+        setIsLoadingModels(false)
       }
     }
 
-    if (user && models.length === 0) {
+    if (user && models.length === 0 && !isLoadingModels) {
       loadModels()
     }
-  }, [user, models.length])
+  }, [user, models.length, isLoadingModels])
 
 
 
 
-  if (loading) {
+  if (loading || appIsLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <div className="text-white text-lg">Загрузка...</div>

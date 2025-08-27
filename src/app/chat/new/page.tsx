@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSupabase } from '@/components/providers/supabase-provider'
+import { useApp } from '@/components/providers/app-provider'
 import { ChatSidebar } from '@/components/ui/chat-sidebar-new'
 import { ModelSelector } from '@/components/ui/model-selector'
 import { AI_MODELS } from '@/lib/ai-models'
@@ -36,53 +37,43 @@ export default function NewChatPage() {
   const [chats, setChats] = useState<Chat[]>([])
   const [userTokens, setUserTokens] = useState(1250)
   const [isPro, setIsPro] = useState(false)
+  const [isLoadingModels, setIsLoadingModels] = useState(false)
   const router = useRouter()
 
+  // Используем данные из app-provider
+  const appContext = useApp()
+  const { chats: appChats, userTokens: appUserTokens, isPro: appIsPro, isLoading: appIsLoading } = appContext || {}
+
+  // Синхронизируем данные из app-provider с локальным состоянием
   useEffect(() => {
-    if (user) {
-      loadChats()
+    if (appChats && !appIsLoading) {
+      setChats(appChats)
+    }
+  }, [appChats, appIsLoading])
+
+  useEffect(() => {
+    if (appUserTokens !== undefined && !appIsLoading) {
+      setUserTokens(appUserTokens)
+    }
+  }, [appUserTokens, appIsLoading])
+
+  useEffect(() => {
+    if (appIsPro !== undefined && !appIsLoading) {
+      setIsPro(appIsPro)
+    }
+  }, [appIsPro, appIsLoading])
+
+  useEffect(() => {
+    if (user && models.length === 0 && !isLoadingModels) {
       loadModels()
-      loadUserData()
     }
-  }, [user])
+  }, [user, models.length, isLoadingModels])
 
-  const loadUserData = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('tokens_balance, is_pro, daily_tokens_used')
-        .eq('id', user?.id)
-        .single()
 
-      if (!error && data) {
-        const remainingTokens = Math.max(0, (data.tokens_balance || 1250) - (data.daily_tokens_used || 0))
-        setUserTokens(remainingTokens)
-        setIsPro(data.is_pro || false)
-      }
-    } catch (error) {
-      console.error('Ошибка загрузки данных пользователя:', error)
-    }
-  }
-
-  const loadChats = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('chats')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('updated_at', { ascending: false })
-
-      if (error) {
-        console.error('Ошибка загрузки чатов:', error)
-      } else {
-        setChats(data || [])
-      }
-    } catch (error) {
-      console.error('Ошибка загрузки чатов:', error)
-    }
-  }
 
   const loadModels = async () => {
+    if (isLoadingModels) return
+    setIsLoadingModels(true)
     try {
       const response = await fetch('/api/models')
       if (response.ok) {
@@ -91,6 +82,8 @@ export default function NewChatPage() {
       }
     } catch (error) {
       console.error('Ошибка загрузки моделей:', error)
+    } finally {
+      setIsLoadingModels(false)
     }
   }
 
@@ -290,7 +283,7 @@ export default function NewChatPage() {
     }
   }, [user])
 
-  if (loading) {
+  if (loading || appIsLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-lg">Загрузка...</div>
