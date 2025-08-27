@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
         type: orderType,
         status: 'pending',
         amount: price
-      })
+      } as any)
       .select()
       .single()
 
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
         'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
       },
       body: JSON.stringify({
-        orderId: orderData.id,
+        orderId: (orderData as any).id,
         paymentSelect: 'bank_card'
       })
     })
@@ -77,8 +77,8 @@ export async function POST(request: NextRequest) {
       // Обновляем статус заказа на failed
       await supabaseAdmin
         .from('orders')
-        .update({ status: 'failed' })
-        .eq('id', orderData.id)
+        .update({ status: 'failed' } as any)
+        .eq('id', (orderData as any).id)
 
       return NextResponse.json(
         { error: 'Ошибка инициализации платежа' },
@@ -94,8 +94,8 @@ export async function POST(request: NextRequest) {
       // Обновляем статус заказа на failed
       await supabaseAdmin
         .from('orders')
-        .update({ status: 'failed' })
-        .eq('id', orderData.id)
+        .update({ status: 'failed' } as any)
+        .eq('id', (orderData as any).id)
 
       return NextResponse.json(
         { error: 'Ошибка создания платежа' },
@@ -105,8 +105,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       paymentUrl: responseData.data.url,
-      paymentId: orderData.id,
-      orderId: orderData.id
+      paymentId: (orderData as any).id,
+      orderId: (orderData as any).id
     })
 
   } catch (error) {

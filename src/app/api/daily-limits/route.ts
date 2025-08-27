@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Проверяем дневные лимиты
-    const dailyLimitCheck = await checkDailyLimits(user.id, userData.is_pro || false)
+    const dailyLimitCheck = await checkDailyLimits(user.id, (userData as any).is_pro || false)
 
     // Получаем информацию о токенах
     const today = new Date().toISOString().split('T')[0]
@@ -40,12 +40,12 @@ export async function GET(request: NextRequest) {
       .eq('date', today)
       .single()
 
-    const limits = (userData.is_pro || false) ? { requests: 100, tokens: 25000 } : { requests: 20, tokens: 5000 }
-    const tokensUsed = dailyUsage?.tokens_used || 0
+    const limits = ((userData as any).is_pro || false) ? { requests: 100, tokens: 25000 } : { requests: 20, tokens: 5000 }
+    const tokensUsed = (dailyUsage as any)?.tokens_used || 0
 
     return NextResponse.json({
-      isPro: userData.is_pro || false,
-      proPlanType: userData.pro_plan_type,
+      isPro: (userData as any).is_pro || false,
+      proPlanType: (userData as any).pro_plan_type,
       dailyLimits: {
         allowed: dailyLimitCheck.allowed,
         limit: dailyLimitCheck.limit,
