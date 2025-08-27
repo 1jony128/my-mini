@@ -251,8 +251,12 @@ export default function ProUsageStats() {
         <div className="flex items-center justify-between">
           <div>
             <p className="font-medium text-text-primary">
-              План: {usageData.user.plan_type === 'weekly' ? 'Недельный' : 
-                     usageData.user.plan_type === 'monthly' ? 'Месячный' : 'Годовой'}
+              План: {usageData.user.plan_type === 'sale20' ? 'Недельный' :
+                     usageData.user.plan_type === 'month' ? 'Месячный' : 
+                     usageData.user.plan_type === 'year' ? 'Годовой' :
+                     usageData.user.plan_type === 'weekly' ? 'Недельный' :
+                     usageData.user.plan_type === 'monthly' ? 'Месячный' : 
+                     usageData.user.plan_type === 'yearly' ? 'Годовой' : 'PRO'}
             </p>
             <p className="text-sm text-text-secondary">
               Всего кредитов: {usageData.user.credits_total}

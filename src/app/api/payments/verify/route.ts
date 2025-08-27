@@ -60,19 +60,24 @@ export async function POST(request: NextRequest) {
       .update({ 
         status: orderStatus,
         payment_id: paymentId
-      })
+      } as any)
       .eq('id', orderId)
 
     // Если платеж успешен, обновляем статус пользователя
     if (paymentData.status === 'succeeded') {
+      // Преобразуем тип заказа в тип плана
+      const planType = (order as any).type === 'sale20' ? 'weekly' :
+                      (order as any).type === 'month' ? 'monthly' :
+                      (order as any).type === 'year' ? 'yearly' : 'monthly';
+
       const { error: userUpdateError } = await supabaseAdmin
         .from('users')
         .update({ 
           is_pro: true,
-          pro_plan_type: order.type,
-          pro_expires_at: getExpirationDate(order.type)
-        })
-        .eq('id', order.user_id)
+          pro_plan_type: planType,
+          pro_expires_at: getExpirationDate((order as any).type)
+        } as any)
+        .eq('id', (order as any).user_id)
 
       if (userUpdateError) {
         console.error('Ошибка обновления пользователя:', userUpdateError)
