@@ -236,6 +236,17 @@ export default function HomePage() {
       if (!response.ok) {
         const errorData = await response.json()
         const errorMessage = errorData.error || 'Ошибка API'
+        
+        // Если ошибка 403 (платная модель для бесплатного пользователя), показываем плашку
+        if (response.status === 403 && errorMessage.includes('PRO пользователей')) {
+          // Удаляем сообщение пользователя
+          setMessages(prev => prev.filter(msg => msg.id !== userMessage.id))
+          // Показываем плашку PRO (это будет обработано в ChatInterface)
+          setIsLoading(false)
+          setIsStreaming(false)
+          return
+        }
+        
         setError(errorMessage)
         // Удаляем сообщение пользователя при ошибке
         setMessages(prev => prev.filter(msg => msg.id !== userMessage.id))

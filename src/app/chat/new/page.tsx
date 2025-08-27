@@ -140,7 +140,20 @@ export default function NewChatPage() {
       })
 
       if (!response.ok) {
-        throw new Error('Ошибка API')
+        const errorData = await response.json()
+        const errorMessage = errorData.error || 'Ошибка API'
+        
+        // Если ошибка 403 (платная модель для бесплатного пользователя), показываем плашку
+        if (response.status === 403 && errorMessage.includes('PRO пользователей')) {
+          // Удаляем сообщение пользователя
+          setMessages(prev => prev.filter(msg => msg.id !== userMessage.id))
+          // Показываем плашку PRO (это будет обработано в ChatInterface)
+          setIsLoading(false)
+          setIsStreaming(false)
+          return
+        }
+        
+        throw new Error(errorMessage)
       }
 
       const reader = response.body?.getReader()

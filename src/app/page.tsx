@@ -79,13 +79,13 @@ export default function LandingPage() {
               transition={{ duration: 0.8 }}
             >
               <h1 className="text-5xl md:text-7xl font-bold text-text-primary mb-6">
-                Общайтесь с{' '}
+                Чат GPT без{' '}
                 <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                  ИИ
+                  VPN
                 </span>
               </h1>
               <p className="text-xl md:text-2xl text-text-secondary mb-8 leading-relaxed">
-                Мультимодельный чат с искусственным интеллектом. Выбирайте из множества моделей и получайте умные ответы на любые вопросы.
+                Бесплатный доступ к GPT-4, Claude, DeepSeek и другим ИИ моделям без VPN. Общайтесь с искусственным интеллектом без ограничений и регистрации.
               </p>
               
               <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
@@ -165,10 +165,10 @@ export default function LandingPage() {
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-text-primary mb-4">
-              Почему ChatAIPRO?
+              Чат GPT без VPN - Лучший выбор
             </h2>
             <p className="text-xl text-text-secondary max-w-2xl mx-auto">
-              Выберите лучшую модель для ваших задач и получите качественные ответы
+              Бесплатный доступ к GPT-4, Claude и другим ИИ моделям без необходимости VPN
             </p>
           </div>
 
@@ -183,10 +183,10 @@ export default function LandingPage() {
                 <Bot className="w-6 h-6 text-primary" />
               </div>
               <h3 className="text-xl font-semibold text-text-primary mb-4">
-                Множество моделей
+                GPT-4 без VPN
               </h3>
               <p className="text-text-secondary">
-                GPT-4, Claude, DeepSeek и другие. Выбирайте модель, которая лучше всего подходит для ваших задач.
+                Полный доступ к GPT-4, Claude, DeepSeek и другим ИИ моделям без необходимости VPN или прокси.
               </p>
             </motion.div>
 
@@ -200,10 +200,10 @@ export default function LandingPage() {
                 <Zap className="w-6 h-6 text-secondary" />
               </div>
               <h3 className="text-xl font-semibold text-text-primary mb-4">
-                Быстрые ответы
+                Бесплатный доступ
               </h3>
               <p className="text-text-secondary">
-                Получайте мгновенные ответы с потоковой передачей текста. Видите, как ИИ печатает в реальном времени.
+                Начните общение с ИИ бесплатно. Без скрытых платежей, без ограничений по времени использования.
               </p>
             </motion.div>
 
@@ -217,10 +217,10 @@ export default function LandingPage() {
                 <Shield className="w-6 h-6 text-success" />
               </div>
               <h3 className="text-xl font-semibold text-text-primary mb-4">
-                Безопасность
+                Без регистрации
               </h3>
               <p className="text-text-secondary">
-                Ваши данные защищены. Все сообщения шифруются и хранятся безопасно.
+                Начните общение с ИИ сразу, без регистрации и подтверждения email. Просто и удобно.
               </p>
             </motion.div>
           </div>
@@ -326,6 +326,75 @@ export default function LandingPage() {
                 Обновить до PRO
               </Link>
             </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* SEO Section */}
+      <section className="py-20 bg-background-secondary">
+        <div className="container mx-auto px-6">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl font-bold text-text-primary mb-8 text-center">
+              Чат GPT без VPN - Лучшая альтернатива
+            </h2>
+            
+            <div className="grid md:grid-cols-2 gap-8 mb-12">
+              <div>
+                <h3 className="text-xl font-semibold text-text-primary mb-4">
+                  Почему выбирают ChatAIPRO?
+                </h3>
+                <ul className="space-y-3 text-text-secondary">
+                  <li className="flex items-start space-x-2">
+                    <span className="text-primary font-bold">✓</span>
+                    <span>Полный доступ к GPT-4 без VPN и прокси</span>
+                  </li>
+                  <li className="flex items-start space-x-2">
+                    <span className="text-primary font-bold">✓</span>
+                    <span>Бесплатный старт без регистрации</span>
+                  </li>
+                  <li className="flex items-start space-x-2">
+                    <span className="text-primary font-bold">✓</span>
+                    <span>Множество ИИ моделей: Claude, DeepSeek, Grok</span>
+                  </li>
+                  <li className="flex items-start space-x-2">
+                    <span className="text-primary font-bold">✓</span>
+                    <span>Быстрые ответы с потоковой передачей</span>
+                  </li>
+                  <li className="flex items-start space-x-2">
+                    <span className="text-primary font-bold">✓</span>
+                    <span>Безопасность и конфиденциальность</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <div>
+                <h3 className="text-xl font-semibold text-text-primary mb-4">
+                  Популярные запросы
+                </h3>
+                <div className="space-y-3 text-text-secondary">
+                  <p><strong>Чат GPT без VPN</strong> - наш сервис предоставляет полный доступ к GPT-4 без необходимости использования VPN или прокси-серверов.</p>
+                  <p><strong>GPT-4 онлайн</strong> - общайтесь с GPT-4 в реальном времени через веб-интерфейс.</p>
+                  <p><strong>ИИ чат бесплатно</strong> - начните общение с искусственным интеллектом без оплаты.</p>
+                  <p><strong>Claude без VPN</strong> - доступ к модели Claude от Anthropic без ограничений.</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-center">
+              <h3 className="text-2xl font-bold text-text-primary mb-4">
+                Начните общение с ИИ прямо сейчас
+              </h3>
+              <p className="text-text-secondary mb-6">
+                Присоединяйтесь к тысячам пользователей, которые уже используют ChatAIPRO для общения с искусственным интеллектом
+              </p>
+              <Link 
+                href={user ? "/chat" : "/auth/register"}
+                className="inline-flex items-center space-x-2 px-8 py-4 bg-primary hover:bg-primary-dark text-white rounded-2xl transition-all font-semibold text-lg"
+              >
+                <span>{user ? "Перейти в чат" : "Начать бесплатно"}</span>
+                <ArrowRight className="w-5 h-5" />
+              </Link>
+            </div>
           </div>
         </div>
       </section>

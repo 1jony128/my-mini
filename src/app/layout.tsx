@@ -9,12 +9,12 @@ import { ThemeProvider } from '@/components/providers/theme-provider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'AI Chat Pro - Умный чат с ИИ',
-  description: 'Современный чат с искусственным интеллектом. Поддерживает GPT-4, Claude, DeepSeek и другие модели. Безопасно, быстро, удобно.',
-  keywords: 'AI чат, искусственный интеллект, GPT-4, Claude, DeepSeek, чат-бот, ИИ помощник, чат gpt, чат Claude, чат DeepSeek, gpt 4, gpt 5',
-  authors: [{ name: 'AI Chat Pro Team' }],
-  creator: 'AI Chat Pro',
-  publisher: 'AI Chat Pro',
+  title: 'ChatAIPRO - Чат GPT без VPN | Бесплатный доступ к ИИ',
+  description: 'Чат GPT без VPN - бесплатный доступ к GPT-4, Claude, DeepSeek и другим ИИ моделям. Общайтесь с искусственным интеллектом без ограничений. Безопасно и быстро.',
+  keywords: 'чат гпт без впн, чат gpt без vpn, gpt 4 без впн, gpt 5 без впн, чат с ии, искусственный интеллект, gpt-4, claude, deepseek, чат-бот, ИИ помощник, чат gpt, чат Claude, чат DeepSeek, бесплатный чат gpt, доступ к gpt без впн, gpt онлайн, ии чат бесплатно',
+  authors: [{ name: 'ChatAIPRO Team' }],
+  creator: 'ChatAIPRO',
+  publisher: 'ChatAIPRO',
   formatDetection: {
     email: false,
     address: false,
@@ -25,16 +25,16 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   openGraph: {
-    title: 'AI Chat Pro - Умный чат с ИИ',
-    description: 'Современный чат с искусственным интеллектом. Поддерживает GPT-4, Claude, DeepSeek и другие модели.',
+    title: 'ChatAIPRO - Чат GPT без VPN | Бесплатный доступ к ИИ',
+    description: 'Чат GPT без VPN - бесплатный доступ к GPT-4, Claude, DeepSeek и другим ИИ моделям. Общайтесь с искусственным интеллектом без ограничений.',
     url: 'https://aichatpro.com',
-    siteName: 'AI Chat Pro',
+    siteName: 'ChatAIPRO',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'AI Chat Pro - Умный чат с ИИ',
+        alt: 'ChatAIPRO - Чат GPT без VPN',
       },
     ],
     locale: 'ru_RU',
@@ -42,8 +42,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AI Chat Pro - Умный чат с ИИ',
-    description: 'Современный чат с искусственным интеллектом. Поддерживает GPT-4, Claude, DeepSeek и другие модели.',
+    title: 'ChatAIPRO - Чат GPT без VPN | Бесплатный доступ к ИИ',
+    description: 'Чат GPT без VPN - бесплатный доступ к GPT-4, Claude, DeepSeek и другим ИИ моделям. Общайтесь с искусственным интеллектом без ограничений.',
     images: ['/og-image.png'],
   },
   robots: {

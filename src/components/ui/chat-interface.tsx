@@ -111,6 +111,13 @@ export function ChatInterface({
     }
   }, [selectedModel, models, isPro])
 
+  // Показываем плашку при ошибке 403 (платная модель для бесплатного пользователя)
+  useEffect(() => {
+    if (error && error.includes('PRO пользователей')) {
+      setShowProBanner(true)
+    }
+  }, [error])
+
   const getModelDisplayName = (modelId?: string): string => {
     if (!modelId) return 'AI Assistant'
     
