@@ -287,8 +287,17 @@ export default function ProfilePage() {
                 <Zap className="w-5 h-5 text-warning" />
               </div>
               <div>
-                <p className="text-lg font-bold text-text-primary">{userStats.isPro ? 'PRO' : 'Free'}</p>
-                <p className="text-sm text-text-secondary">Статус аккаунта</p>
+                <p className="text-lg font-bold text-text-primary">
+                  {userStats.isPro ? 'PRO' : 'Free'}
+                </p>
+                <p className="text-sm text-text-secondary">
+                  {userStats.isPro ? 'Текущий план' : 'Статус аккаунта'}
+                </p>
+                {userStats.isPro && (
+                  <p className="text-xs text-text-secondary mt-1">
+                    Управляйте подпиской и лимитами
+                  </p>
+                )}
               </div>
             </motion.button>
           </div>
@@ -360,7 +369,7 @@ export default function ProfilePage() {
             className="w-full p-4 bg-secondary text-white rounded-xl font-semibold hover:bg-secondary/90 transition-colors flex items-center justify-center space-x-2"
           >
             <Crown className="w-5 h-5" />
-            <span>Перейти на PRO</span>
+            <span>{userStats.isPro ? 'Управление подпиской' : 'Перейти на PRO'}</span>
           </motion.button>
 
           <motion.button

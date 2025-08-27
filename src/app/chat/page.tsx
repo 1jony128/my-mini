@@ -433,22 +433,17 @@ export default function HomePage() {
       {/* Боковая панель с чатами (только для десктопа) */}
       {!isMobile && (
         <ChatSidebar
-          currentChatId={selectedChatId}
+          chats={chats}
+          currentChatId={currentChatId}
           onChatSelect={handleSelectChat}
           onNewChat={handleNewChat}
           onDeleteChat={handleDeleteChat}
           onSettings={() => router.push('/settings')}
-          onUpgrade={() => router.push('/upgrade')}
           onProfile={() => router.push('/profile')}
-          userTokens={userTokens}
-          isPro={isPro}
-          selectedModel={selectedModel}
-          onModelSelect={setSelectedModel}
-          models={models}
-          isMobile={isMobile}
+          onUpgrade={() => router.push('/upgrade')}
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
-          canCreateChat={isPro} // Используем isPro для определения возможности создания чата
+          canCreateChat={canCreateChat} // Передаем функцию, а не boolean
         />
       )}
 
@@ -490,19 +485,14 @@ export default function HomePage() {
       {/* Мобильная сайдбара */}
       {isMobile && (
         <ChatSidebar
-          currentChatId={selectedChatId}
+          chats={chats}
+          currentChatId={currentChatId}
           onChatSelect={handleSelectChat}
           onNewChat={handleNewChat}
           onDeleteChat={handleDeleteChat}
           onSettings={() => router.push('/settings')}
-          onUpgrade={() => router.push('/upgrade')}
           onProfile={() => router.push('/profile')}
-          userTokens={userTokens}
-          isPro={isPro}
-          selectedModel={selectedModel}
-          onModelSelect={setSelectedModel}
-          models={models}
-          isMobile={true}
+          onUpgrade={() => router.push('/upgrade')}
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
           canCreateChat={canCreateChat}
