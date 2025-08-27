@@ -8,7 +8,7 @@ const deepseek = process.env.DEEPSEEK_API_KEY && process.env.DEEPSEEK_API_KEY !=
   baseURL: 'https://api.deepseek.com/v1',
 }) : null
 
-// Пул DeepSeek моделей (скрытые от пользователя)
+// Пул GPT-4o моделей (скрытые от пользователя)
 const DEEPSEEK_MODEL_POOL = [
   'deepseek/deepseek-r1:free',
   'deepseek/deepseek-chat-v3-0324:free',
@@ -36,7 +36,7 @@ const DEEPSEEK_MODEL_POOL = [
 export const AI_MODELS: AIModel[] = [
   {
     id: 'deepseek',
-    name: 'DeepSeek',
+    name: 'GPT-4o',
     provider: 'openrouter',
     is_free: true,
     max_tokens: 8192,
@@ -113,7 +113,7 @@ export async function generateResponse(
   let actualModelId = modelId
   if (modelId === 'deepseek') {
     actualModelId = getRandomDeepSeekModel()
-    console.log('DeepSeek: выбрана модель из пула:', actualModelId)
+    console.log('GPT-4o: выбрана модель из пула:', actualModelId)
   }
   
   const model = AI_MODELS.find(m => m.id === modelId)
@@ -178,7 +178,7 @@ export async function generateResponse(
           console.log('OpenRouter: превышен лимит запросов, пробуем fallback модели...')
           // Пробуем fallback на другие модели в порядке приоритета
           const fallbackModels = [
-            // Сначала пробуем другие модели из пула DeepSeek
+            // Сначала пробуем другие модели из пула GPT-4o
             ...DEEPSEEK_MODEL_POOL.filter(id => id !== actualModelId),
             
             // Затем классические fallback модели
@@ -311,7 +311,7 @@ export function estimateTokens(text: string): number {
   return Math.ceil(text.length / 4)
 }
 
-// Функция для получения случайной модели из пула DeepSeek
+// Функция для получения случайной модели из пула GPT-4o
 export function getRandomDeepSeekModel(): string {
   const randomIndex = Math.floor(Math.random() * DEEPSEEK_MODEL_POOL.length)
   return DEEPSEEK_MODEL_POOL[randomIndex]
@@ -327,7 +327,7 @@ export function getRandomAvailableModel(): string {
 // Функция для получения следующей модели в fallback списке
 export function getNextFallbackModel(currentModel: string): string | null {
   const fallbackModels = [
-    ...DEEPSEEK_MODEL_POOL,
+    ...DEEPSEEK_MODEL_POOL, // Пул GPT-4o моделей
     'gpt-3.5-turbo',
     'claude-3-haiku',
     'gemini-pro'
