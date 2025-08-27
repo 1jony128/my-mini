@@ -2,6 +2,12 @@ import OpenAI from 'openai'
 import Anthropic from '@anthropic-ai/sdk'
 import { AIModel } from '@/types'
 
+// Grok клиент для fallback
+const grok = process.env.GROK_API_KEY ? new OpenAI({
+  apiKey: process.env.GROK_API_KEY,
+  baseURL: 'https://api.x.ai/v1',
+}) : null
+
 // DeepSeek использует OpenAI-совместимый API
 const deepseek = process.env.DEEPSEEK_API_KEY && process.env.DEEPSEEK_API_KEY !== 'placeholder_deepseek_key' ? new OpenAI({
   apiKey: process.env.DEEPSEEK_API_KEY,
@@ -68,7 +74,7 @@ export const AI_MODELS: AIModel[] = [
   },
   {
     id: 'gpt-4',
-    name: 'GPT-4',
+    name: 'GPT-4 (Grok)',
     provider: 'openrouter',
     is_free: false,
     max_tokens: 8192,
@@ -76,7 +82,7 @@ export const AI_MODELS: AIModel[] = [
   },
   {
     id: 'claude-3-sonnet',
-    name: 'Claude 3 Sonnet',
+    name: 'Claude 3 Sonnet (Grok)',
     provider: 'openrouter',
     is_free: false,
     max_tokens: 8192,
@@ -84,7 +90,7 @@ export const AI_MODELS: AIModel[] = [
   },
   {
     id: 'claude-3-opus',
-    name: 'Claude 3 Opus',
+    name: 'Claude 3 Opus (Grok)',
     provider: 'openrouter',
     is_free: false,
     max_tokens: 8192,
@@ -141,6 +147,33 @@ export async function generateResponse(
   }
 
   try {
+    // Для платных моделей используем Grok напрямую (экономия токенов)
+    if (!model.is_free && grok) {
+      console.log('Платная модель - используем Grok напрямую')
+      try {
+        if (stream) {
+          return await grok.chat.completions.create({
+            model: 'grok-4-latest',
+            messages: enhancedMessages as any,
+            stream: true,
+            temperature: 0.7,
+            max_tokens: model.max_tokens
+          })
+        } else {
+          const grokResponse = await grok.chat.completions.create({
+            model: 'grok-4-latest',
+            messages: enhancedMessages as any,
+            temperature: 0.7,
+            max_tokens: model.max_tokens
+          })
+          return grokResponse.choices[0]?.message?.content || ''
+        }
+      } catch (grokError) {
+        console.log('Grok недоступен, используем OpenRouter:', grokError)
+        // Если Grok недоступен, продолжаем с OpenRouter
+      }
+    }
+    
     if (model.provider === 'openrouter') {
       console.log('Используем OpenRouter для модели:', actualModelId)
       console.log('OPENROUTER_API_KEY доступен:', !!process.env.OPENROUTER_API_KEY)
@@ -176,7 +209,34 @@ export async function generateResponse(
       if (!response.ok) {
         if (response.status === 429) {
           console.log('OpenRouter: превышен лимит запросов, пробуем fallback модели...')
-          // Пробуем fallback на другие модели в порядке приоритета
+          
+          // Для платных моделей используем Grok как fallback
+          if (!model.is_free && grok) {
+            console.log('Платная модель - используем Grok как fallback')
+            try {
+              if (stream) {
+                return await grok.chat.completions.create({
+                  model: 'grok-4-latest',
+                  messages: enhancedMessages as any,
+                  stream: true,
+                  temperature: 0.7,
+                  max_tokens: model.max_tokens
+                })
+              } else {
+                const grokResponse = await grok.chat.completions.create({
+                  model: 'grok-4-latest',
+                  messages: enhancedMessages as any,
+                  temperature: 0.7,
+                  max_tokens: model.max_tokens
+                })
+                return grokResponse.choices[0]?.message?.content || ''
+              }
+            } catch (grokError) {
+              console.log('Grok fallback не работает:', grokError)
+            }
+          }
+          
+          // Для бесплатных моделей пробуем другие бесплатные модели
           const fallbackModels = [
             // Сначала пробуем другие модели из пула GPT-4o
             ...DEEPSEEK_MODEL_POOL.filter(id => id !== actualModelId),
