@@ -1,38 +1,56 @@
 import { supabaseAdmin } from './supabase'
 
-// Лимиты кредитов для разных моделей
-export const PRO_CREDIT_LIMITS = {
+// Коэффициенты стоимости для разных моделей (базовая стоимость = 1 кредит)
+export const MODEL_COST_MULTIPLIERS = {
+  // Бесплатные модели (базовая стоимость)
+  'deepseek': 1,
+  'gpt-3.5-turbo': 1,
+  'claude-3-haiku': 1,
+  'gemini-pro': 1,
+  
+  // Средние модели (2-3x стоимость)
+  'gpt-4': 3,
+  'claude-3-sonnet': 2.5,
+  'gemini-pro-vision': 2,
+  'grok-beta': 2.5,
+  
+  // Премиум модели (4-8x стоимость)
+  'gpt-4-turbo': 4,
+  'claude-3-opus': 6,
+  'gpt-4o': 5,
+  'gpt-4o-mini': 2.5,
+  
+  // Экспериментальные/новые модели (высокая стоимость)
   'deepseek/deepseek-r1:free': 1,
-  'gpt-3.5-turbo': 2,
-  'gpt-4': 5,
-  'gpt-4-turbo': 3,
-  'claude-3-haiku': 2,
-  'claude-3-sonnet': 4,
-  'claude-3-opus': 8,
-  'gemini-pro': 3,
-  'gemini-pro-vision': 4,
-  'grok-beta': 6
+  'deepseek/deepseek-chat-v3-0324:free': 1.5,
+  'deepseek/deepseek-r1-0528:free': 1.2,
+  'qwen/qwen3-235b-a22b:free': 2,
+  'meta-llama/llama-3.3-70b-instruct:free': 3,
+  'google/gemini-2.0-flash-exp:free': 2.5,
 } as const
 
-// Ежемесячные лимиты кредитов по планам
+// Лимиты кредитов для разных планов
 export const PRO_PLAN_LIMITS = {
   weekly: {
-    credits: 50,
-    daily_messages: 20,
-    daily_tokens: 10000,
-    hourly_messages: 5
+    credits: 100,
+    daily_messages: 30,
+    daily_tokens: 15000,
+    hourly_messages: 8,
+    max_model_cost: 4 // Максимальный коэффициент модели для недельного плана
   },
   monthly: {
-    credits: 200,
-    daily_messages: 50,
-    daily_tokens: 25000,
-    hourly_messages: 10
+    credits: 400,
+    daily_messages: 80,
+    daily_tokens: 40000,
+    hourly_messages: 15,
+    max_model_cost: 6 // Максимальный коэффициент модели для месячного плана
   },
   yearly: {
-    credits: 2500,
-    daily_messages: 100,
-    daily_tokens: 50000,
-    hourly_messages: 20
+    credits: 5000,
+    daily_messages: 150,
+    daily_tokens: 75000,
+    hourly_messages: 25,
+    max_model_cost: 8 // Максимальный коэффициент модели для годового плана
   }
 } as const
 
@@ -57,16 +75,35 @@ export interface ProLimitCheck {
   needed?: number
   limit?: number
   used?: number
+  model_cost?: number
+  plan_max_cost?: number
 }
 
-// Получить количество кредитов для модели
-export function getCreditsForModel(modelId: string): number {
-  return PRO_CREDIT_LIMITS[modelId as keyof typeof PRO_CREDIT_LIMITS] || 1
+// Получить стоимость модели в кредитах
+export function getModelCost(modelId: string): number {
+  // Нормализуем ID модели
+  const normalizedId = modelId.includes('/') ? modelId : modelId.toLowerCase()
+  return MODEL_COST_MULTIPLIERS[normalizedId as keyof typeof MODEL_COST_MULTIPLIERS] || 1
 }
 
 // Получить лимиты для плана
 export function getPlanLimits(planType: keyof typeof PRO_PLAN_LIMITS) {
   return PRO_PLAN_LIMITS[planType]
+}
+
+// Проверить доступность модели для плана
+export function isModelAvailableForPlan(modelId: string, planType: keyof typeof PRO_PLAN_LIMITS): boolean {
+  const modelCost = getModelCost(modelId)
+  const planLimits = getPlanLimits(planType)
+  return modelCost <= planLimits.max_model_cost
+}
+
+// Получить доступные модели для плана
+export function getAvailableModelsForPlan(planType: keyof typeof PRO_PLAN_LIMITS): string[] {
+  const planLimits = getPlanLimits(planType)
+  return Object.keys(MODEL_COST_MULTIPLIERS).filter(modelId => 
+    MODEL_COST_MULTIPLIERS[modelId as keyof typeof MODEL_COST_MULTIPLIERS] <= planLimits.max_model_cost
+  )
 }
 
 // Проверить лимиты PRO пользователя
@@ -95,15 +132,26 @@ export async function checkProLimits(userId: string, modelId: string): Promise<P
 
     const planType = user.pro_plan_type as keyof typeof PRO_PLAN_LIMITS
     const planLimits = getPlanLimits(planType)
-    const creditsNeeded = getCreditsForModel(modelId)
+    const modelCost = getModelCost(modelId)
+
+    // Проверяем доступность модели для плана
+    if (!isModelAvailableForPlan(modelId, planType)) {
+      return {
+        allowed: false,
+        reason: 'MODEL_NOT_AVAILABLE_FOR_PLAN',
+        model_cost: modelCost,
+        plan_max_cost: planLimits.max_model_cost
+      }
+    }
 
     // Проверяем остаток кредитов
-    if (user.pro_credits_remaining < creditsNeeded) {
+    if (user.pro_credits_remaining < modelCost) {
       return {
         allowed: false,
         reason: 'INSUFFICIENT_CREDITS',
         remaining: user.pro_credits_remaining,
-        needed: creditsNeeded
+        needed: modelCost,
+        model_cost: modelCost
       }
     }
 
@@ -138,7 +186,11 @@ export async function checkProLimits(userId: string, modelId: string): Promise<P
       }
     }
 
-    return { allowed: true }
+    return { 
+      allowed: true, 
+      model_cost: modelCost,
+      plan_max_cost: planLimits.max_model_cost
+    }
   } catch (error) {
     console.error('Error checking PRO limits:', error)
     return { allowed: false, reason: 'SYSTEM_ERROR' }
@@ -154,7 +206,7 @@ export async function updateProUsage(
   messageLength: number
 ): Promise<void> {
   try {
-    const creditsSpent = getCreditsForModel(modelId)
+    const creditsSpent = getModelCost(modelId)
     const today = new Date().toISOString().split('T')[0]
 
     // Обновляем кредиты пользователя
@@ -178,8 +230,9 @@ export async function updateProUsage(
         model_id: modelId,
         tokens_used: tokensUsed,
         credits_spent: creditsSpent,
-        message_length: messageLength
-      })
+        message_length: messageLength,
+        model_cost_multiplier: creditsSpent
+      } as any)
 
     if (logError) {
       console.error('Error adding usage log:', logError)
@@ -203,11 +256,11 @@ export async function updateProUsage(
       const { error: updateError } = await supabaseAdmin
         .from('pro_usage_monitoring')
         .update({
-          messages_count: existingMonitoring.messages_count + 1,
-          tokens_used: existingMonitoring.tokens_used + tokensUsed,
-          credits_spent: existingMonitoring.credits_spent + creditsSpent
-        })
-        .eq('id', existingMonitoring.id)
+          messages_count: (existingMonitoring as any).messages_count + 1,
+          tokens_used: (existingMonitoring as any).tokens_used + tokensUsed,
+          credits_spent: (existingMonitoring as any).credits_spent + creditsSpent
+        } as any)
+        .eq('id', (existingMonitoring as any).id)
 
       if (updateError) {
         console.error('Error updating monitoring:', updateError)
@@ -222,7 +275,7 @@ export async function updateProUsage(
           messages_count: 1,
           tokens_used: tokensUsed,
           credits_spent: creditsSpent
-        })
+        } as any)
 
       if (insertError) {
         console.error('Error creating monitoring:', insertError)
@@ -247,7 +300,7 @@ async function checkAndSendWarnings(userId: string, date: string): Promise<void>
 
     if (!user?.pro_plan_type) return
 
-    const planType = user.pro_plan_type as keyof typeof PRO_PLAN_LIMITS
+    const planType = (user as any).pro_plan_type as keyof typeof PRO_PLAN_LIMITS
     const planLimits = getPlanLimits(planType)
 
     const { data: dailyUsage } = await supabaseAdmin
@@ -260,8 +313,8 @@ async function checkAndSendWarnings(userId: string, date: string): Promise<void>
     if (!dailyUsage) return
 
     // Проверяем лимиты и отправляем предупреждения
-    const messageUsagePercentage = dailyUsage.messages_count / planLimits.daily_messages
-    const tokenUsagePercentage = dailyUsage.tokens_used / planLimits.daily_tokens
+    const messageUsagePercentage = (dailyUsage as any).messages_count / planLimits.daily_messages
+    const tokenUsagePercentage = (dailyUsage as any).tokens_used / planLimits.daily_tokens
 
     if (messageUsagePercentage > WARNING_LEVELS.WARNING || tokenUsagePercentage > WARNING_LEVELS.WARNING) {
       // Здесь можно добавить отправку уведомления пользователю
@@ -290,7 +343,7 @@ export async function resetProCredits(userId: string, planType: keyof typeof PRO
         pro_credits_total: planLimits.credits,
         pro_usage_warnings: 0,
         pro_last_reset_date: new Date().toISOString()
-      })
+      } as any)
       .eq('id', userId)
 
     if (error) {

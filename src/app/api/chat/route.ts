@@ -73,6 +73,9 @@ export async function POST(request: NextRequest) {
           case 'INSUFFICIENT_CREDITS':
             errorMessage = `Недостаточно кредитов. Осталось: ${proLimitCheck.remaining}, нужно: ${proLimitCheck.needed}`
             break
+          case 'MODEL_NOT_AVAILABLE_FOR_PLAN':
+            errorMessage = `Модель недоступна для вашего плана. Стоимость модели: ${proLimitCheck.model_cost}x, максимальная для плана: ${proLimitCheck.plan_max_cost}x. Обновите план для доступа к этой модели.`
+            break
           case 'DAILY_MESSAGE_LIMIT_EXCEEDED':
             errorMessage = `Превышен дневной лимит сообщений. Лимит: ${proLimitCheck.limit}, использовано: ${proLimitCheck.used}`
             break
@@ -81,6 +84,9 @@ export async function POST(request: NextRequest) {
             break
           case 'SUBSCRIPTION_EXPIRED':
             errorMessage = 'Подписка PRO истекла. Продлите подписку для продолжения использования.'
+            break
+          case 'NOT_PRO_USER':
+            errorMessage = 'Эта модель доступна только для PRO пользователей.'
             break
         }
         
