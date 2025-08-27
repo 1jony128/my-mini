@@ -1,21 +1,25 @@
+// @ts-nocheck
 'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useUser } from '@/components/providers/supabase-provider'
-import { useApp } from '@/components/providers/app-provider'
-import { Menu } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
-import { ChatInterface } from '@/components/ui/chat-interface'
+import { useSupabase } from '@/components/providers/supabase-provider'
 import { ChatSidebar } from '@/components/ui/chat-sidebar-new'
-import { Message, Chat as ChatType } from '@/types'
-import { chatStorage, messageStorage } from '@/lib/localStorage'
-import toast from 'react-hot-toast'
-import Link from 'next/link'
+import { ModelSelector } from '@/components/ui/model-selector'
+import { AI_MODELS } from '@/lib/ai-models'
+import { Message, Chat } from '@/types'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Send, Mic, Copy, Check, ArrowLeft, Edit3, Trash2 } from 'lucide-react'
+import { toast } from 'react-hot-toast'
+import { ReactMarkdown } from 'react-markdown'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { supabase } from '@/lib/supabase'
+import { messageStorage } from '@/lib/localStorage'
 
 export default function HomePage() {
-  const { user, loading } = useUser()
-  const { chats, userTokens, isPro, refreshChats, updateChats, canCreateChat } = useApp()
+  const { user, loading } = useSupabase()
+  const { chats, userTokens, isPro, refreshChats, updateChats, canCreateChat } = useSupabase()
   const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)

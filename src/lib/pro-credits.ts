@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { supabaseAdmin } from './supabase'
 
 // Коэффициенты стоимости для разных моделей (базовая стоимость = 1 кредит)

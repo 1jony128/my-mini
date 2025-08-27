@@ -585,7 +585,6 @@ export default function UpgradePage() {
             ))}
           </div>
         </motion.div>
-        */}
 
         {/* FAQ */}
         <motion.div

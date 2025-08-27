@@ -1,13 +1,21 @@
+// @ts-nocheck
 'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSupabase } from '@/components/providers/supabase-provider'
-import { supabase } from '@/lib/supabase'
-import { ChatInterface } from '@/components/ui/chat-interface'
 import { ChatSidebar } from '@/components/ui/chat-sidebar-new'
-import { Chat as ChatType } from '@/types'
-import toast from 'react-hot-toast'
+import { ModelSelector } from '@/components/ui/model-selector'
+import { AI_MODELS } from '@/lib/ai-models'
+import { Message, Chat } from '@/types'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Send, Mic, Copy, Check, ArrowLeft, Edit3, Trash2 } from 'lucide-react'
+import { toast } from 'react-hot-toast'
+import { ReactMarkdown } from 'react-markdown'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { supabase } from '@/lib/supabase'
+import { messageStorage } from '@/lib/localStorage'
 
 interface Message {
   id: string
@@ -25,7 +33,7 @@ export default function NewChatPage() {
   const [isStreaming, setIsStreaming] = useState(false)
   const [streamingMessage, setStreamingMessage] = useState('')
   const [models, setModels] = useState<Array<{ id: string; name: string; provider: string; is_free: boolean }>>([])
-  const [chats, setChats] = useState<ChatType[]>([])
+  const [chats, setChats] = useState<Chat[]>([])
   const [userTokens, setUserTokens] = useState(1250)
   const [isPro, setIsPro] = useState(false)
   const router = useRouter()

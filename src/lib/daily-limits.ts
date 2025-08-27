@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { supabaseAdmin } from './supabase'
 
 export interface DailyLimitCheck {

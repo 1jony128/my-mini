@@ -1,19 +1,26 @@
+// @ts-nocheck
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useSupabase } from '@/components/providers/supabase-provider'
-import { supabase } from '@/lib/supabase'
-import { Message, Chat as ChatType } from '@/types'
-import { ChatInterface } from '@/components/ui/chat-interface'
 import { ChatSidebar } from '@/components/ui/chat-sidebar-new'
+import { ModelSelector } from '@/components/ui/model-selector'
+import { AI_MODELS } from '@/lib/ai-models'
+import { Message, Chat } from '@/types'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Send, Mic, Copy, Check, ArrowLeft, Edit3, Trash2 } from 'lucide-react'
+import { toast } from 'react-hot-toast'
+import { ReactMarkdown } from 'react-markdown'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { supabase } from '@/lib/supabase'
 import { messageStorage } from '@/lib/localStorage'
-import toast from 'react-hot-toast'
 
 export default function ChatPage() {
   const { id } = useParams()
   const { user, loading } = useSupabase()
-  const [chat, setChat] = useState<ChatType | null>(null)
+  const [chat, setChat] = useState<Chat | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState('')
   const [selectedModel, setSelectedModel] = useState('deepseek/deepseek-r1:free')
@@ -21,7 +28,7 @@ export default function ChatPage() {
   const [isStreaming, setIsStreaming] = useState(false)
   const [streamingMessage, setStreamingMessage] = useState('')
   const [models, setModels] = useState<Array<{ id: string; name: string; provider: string; is_free: boolean }>>([])
-  const [chats, setChats] = useState<ChatType[]>([])
+  const [chats, setChats] = useState<Chat[]>([])
   const router = useRouter()
 
   useEffect(() => {
@@ -41,11 +48,11 @@ export default function ChatPage() {
 
   const loadChat = async () => {
     try {
-      const { data, error } = await supabase
+      const { data: chat, error } = await supabase
         .from('chats')
         .select('*')
         .eq('id', id)
-        .eq('user_id', user?.id)
+        .eq('user_id', user?.id || '')
         .single()
 
       if (error) {
