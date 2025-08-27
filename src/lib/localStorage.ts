@@ -1,9 +1,9 @@
 import { Chat, Message } from '@/types'
 
 // Ключи для localStorage
-const CHATS_KEY = 'chatAI_chats'
-const MESSAGES_KEY = 'chatAI_messages_'
-const USER_PREFIX = 'chatAI_user_'
+const CHATS_KEY = 'chatAIPRO_chats'
+const MESSAGES_KEY = 'chatAIPRO_messages_'
+const USER_PREFIX = 'chatAIPRO_user_'
 
 // Утилиты для работы с чатами
 export const chatStorage = {
@@ -165,7 +165,7 @@ export const storageUtils = {
     try {
       const keys = Object.keys(localStorage)
       keys.forEach(key => {
-        if (key.startsWith('chatAI_')) {
+        if (key.startsWith('chatAIPRO_')) {
           localStorage.removeItem(key)
         }
       })
@@ -180,7 +180,7 @@ export const storageUtils = {
       let size = 0
       const keys = Object.keys(localStorage)
       keys.forEach(key => {
-        if (key.startsWith('chatAI_')) {
+        if (key.startsWith('chatAIPRO_')) {
           size += localStorage.getItem(key)?.length || 0
         }
       })

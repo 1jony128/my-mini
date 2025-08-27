@@ -37,7 +37,7 @@ export default function LandingPage() {
               <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
-              <h1 className="text-2xl font-bold text-text-primary">ChatAI</h1>
+              <h1 className="text-2xl font-bold text-text-primary">ChatAIPRO</h1>
             </div>
             
             <div className="flex items-center space-x-4">
@@ -165,7 +165,7 @@ export default function LandingPage() {
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-text-primary mb-4">
-              Почему ChatAI?
+              Почему ChatAIPRO?
             </h2>
             <p className="text-xl text-text-secondary max-w-2xl mx-auto">
               Выберите лучшую модель для ваших задач и получите качественные ответы
@@ -338,10 +338,10 @@ export default function LandingPage() {
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-text-primary">ChatAI</h3>
+              <h3 className="text-xl font-bold text-text-primary">ChatAIPRO</h3>
             </div>
             <p className="text-text-secondary mb-6">
-              © 2024 ChatAI. Все права защищены.
+              © 2025 ChatAIPRO. Все права защищены.
             </p>
             <div className="flex items-center justify-center space-x-6">
               {user ? (
