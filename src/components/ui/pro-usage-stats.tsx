@@ -12,6 +12,7 @@ interface ProUsageData {
     plan_type: string
     credits_remaining: number
     credits_total: number
+    expires_at?: string
   }
   today: {
     messages_count: number
@@ -261,6 +262,11 @@ export default function ProUsageStats() {
             <p className="text-sm text-text-secondary">
               Всего кредитов: {usageData.user.credits_total}
             </p>
+            {usageData.user.expires_at && (
+              <p className="text-sm text-text-secondary">
+                Активна до: {new Date(usageData.user.expires_at).toLocaleDateString('ru-RU')}
+              </p>
+            )}
           </div>
           <div className="text-right">
             <p className="text-sm text-text-secondary">

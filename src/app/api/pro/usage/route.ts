@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     // Получаем данные пользователя
     const { data: userData, error: userError } = await supabaseAdmin
       .from('users')
-      .select('is_pro, pro_plan_type, pro_credits_remaining, pro_credits_total')
+      .select('is_pro, pro_plan_type, pro_credits_remaining, pro_credits_total, pro_expires_at')
       .eq('id', user.id)
       .single()
 
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Пользователь не найден' }, { status: 404 })
     }
 
-    if (!userData.is_pro) {
+    if (!(userData as any).is_pro) {
       return NextResponse.json({ error: 'Требуется PRO подписка' }, { status: 403 })
     }
 
@@ -68,17 +68,18 @@ export async function GET(request: NextRequest) {
 
     // Вычисляем общую статистику за неделю
     const weeklyStats = weeklyUsage?.reduce((acc, day) => ({
-      messages_count: acc.messages_count + (day.messages_count || 0),
-      tokens_used: acc.tokens_used + (day.tokens_used || 0),
-      credits_spent: acc.credits_spent + (day.credits_spent || 0)
+      messages_count: acc.messages_count + ((day as any).messages_count || 0),
+      tokens_used: acc.tokens_used + ((day as any).tokens_used || 0),
+      credits_spent: acc.credits_spent + ((day as any).credits_spent || 0)
     }), { messages_count: 0, tokens_used: 0, credits_spent: 0 }) || { messages_count: 0, tokens_used: 0, credits_spent: 0 }
 
     return NextResponse.json({
       user: {
-        is_pro: userData.is_pro,
-        plan_type: userData.pro_plan_type,
-        credits_remaining: userData.pro_credits_remaining,
-        credits_total: userData.pro_credits_total
+        is_pro: (userData as any).is_pro,
+        plan_type: (userData as any).pro_plan_type,
+        credits_remaining: (userData as any).pro_credits_remaining,
+        credits_total: (userData as any).pro_credits_total,
+        expires_at: (userData as any).pro_expires_at
       },
       today: todayUsage || { messages_count: 0, tokens_used: 0, credits_spent: 0 },
       weekly: weeklyStats,
