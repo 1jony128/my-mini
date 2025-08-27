@@ -41,6 +41,12 @@ export default function LandingPage() {
             </div>
             
             <div className="flex items-center space-x-4">
+              <Link 
+                href="/blog"
+                className="px-6 py-2 text-text-primary hover:text-primary transition-colors"
+              >
+                Блог
+              </Link>
               {user ? (
                 <Link 
                   href="/chat"
@@ -413,6 +419,12 @@ export default function LandingPage() {
               © 2025 ChatAIPRO. Все права защищены.
             </p>
             <div className="flex items-center justify-center space-x-6">
+              <Link href="/" className="text-text-secondary hover:text-primary transition-colors">
+                Главная
+              </Link>
+              <Link href="/blog" className="text-text-primary font-medium">
+                Блог
+              </Link>
               {user ? (
                 <Link 
                   href="/chat"

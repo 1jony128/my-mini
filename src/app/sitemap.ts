@@ -26,6 +26,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     
+    // Блог
+    {
+      url: `${baseUrl}/blog`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/blog/chat-gpt-bez-vpn`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    
     // Чат и общение
     {
       url: `${baseUrl}/chat`,
