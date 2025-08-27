@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast'
 import { SupabaseProvider } from '@/components/providers/supabase-provider'
 import { AppProvider } from '@/components/providers/app-provider'
 import { ThemeProvider } from '@/components/providers/theme-provider'
+import Script from 'next/script'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -58,7 +59,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: 'your-google-verification-code',
+    google: 'google1234567890abcdef',
     yandex: 'your-yandex-verification-code',
   },
 }
@@ -77,6 +78,39 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#3B82F6" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        
+        {/* Структурированные данные для Google */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "ChatAIPRO",
+              "description": "Чат GPT без VPN - бесплатный доступ к GPT-4, Claude, DeepSeek и другим ИИ моделям",
+              "url": "https://aichatpro.com",
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": "https://aichatpro.com/chat?q={search_term_string}",
+                "query-input": "required name=search_term_string"
+              }
+            })
+          }}
+        />
+        
+        {/* Google Analytics (добавьте свой код) */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'GA_MEASUREMENT_ID');
+          `}
+        </Script>
       </head>
       <body className={inter.className}>
         <ThemeProvider>
