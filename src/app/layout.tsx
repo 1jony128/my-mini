@@ -76,6 +76,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
+        <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
         <meta name="theme-color" content="#3B82F6" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         

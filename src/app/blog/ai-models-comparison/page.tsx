@@ -4,8 +4,8 @@ import { ArrowLeft, Calendar, Clock, Tag, Share2, BookOpen, TrendingUp, Zap, Bra
 
 export const metadata: Metadata = {
   title: 'Сравнение ИИ моделей: GPT-4 vs Claude vs DeepSeek - ChatAIPRO',
-  description: 'Подробное сравнение лучших ИИ моделей: GPT-4, Claude, DeepSeek. Какая модель подходит для ваших задач?',
-  keywords: 'сравнение ии моделей, gpt-4 vs claude, gpt-4 vs deepseek, claude vs deepseek, лучшая ии модель, сравнение чат ботов',
+  description: 'Подробное сравнение лучших ИИ моделей: GPT-4, Claude, DeepSeek. Какая модель подходит для ваших задач? Узнайте преимущества и недостатки каждой модели.',
+  keywords: 'сравнение ии моделей, gpt-4 vs claude, gpt-4 vs deepseek, claude vs deepseek, лучшая ии модель, сравнение чат ботов, какая ии модель лучше, gpt-4 claude deepseek сравнение',
   openGraph: {
     title: 'Сравнение ИИ моделей: GPT-4 vs Claude vs DeepSeek',
     description: 'Подробное сравнение лучших ИИ моделей. Какая модель подходит для ваших задач?',
@@ -14,11 +14,49 @@ export const metadata: Metadata = {
     locale: 'ru_RU',
     type: 'article',
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Сравнение ИИ моделей: GPT-4 vs Claude vs DeepSeek',
+    description: 'Подробное сравнение лучших ИИ моделей. Какая модель подходит для ваших задач?',
+  },
 }
 
 export default function AiModelsComparisonArticle() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background-secondary to-background">
+    <>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              "headline": "Сравнение ИИ моделей: GPT-4 vs Claude vs DeepSeek",
+              "description": "Подробное сравнение лучших ИИ моделей: GPT-4, Claude, DeepSeek. Какая модель подходит для ваших задач?",
+              "image": "https://aichat-pro.ru/blog/ai-models-comparison.jpg",
+              "author": {
+                "@type": "Organization",
+                "name": "ChatAIPRO"
+              },
+              "publisher": {
+                "@type": "Organization",
+                "name": "ChatAIPRO",
+                "logo": {
+                  "@type": "ImageObject",
+                  "url": "https://aichat-pro.ru/logo.png"
+                }
+              },
+              "datePublished": "2025-01-26",
+              "dateModified": "2025-01-26",
+              "mainEntityOfPage": {
+                "@type": "WebPage",
+                "@id": "https://aichat-pro.ru/blog/ai-models-comparison"
+              }
+            })
+          }}
+        />
+      </head>
+      <div className="min-h-screen bg-gradient-to-br from-background via-background-secondary to-background">
       {/* Header */}
       <header className="relative z-10">
         <div className="container mx-auto px-6 py-4">
@@ -398,5 +436,6 @@ export default function AiModelsComparisonArticle() {
         </div>
       </footer>
     </div>
+    </>
   )
 }

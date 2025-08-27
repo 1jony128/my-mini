@@ -5,7 +5,7 @@ import { ArrowLeft, Calendar, Clock, Tag, Share2, BookOpen, Gift, Users, Star } 
 export const metadata: Metadata = {
   title: 'Бесплатный чат с ИИ: Как начать общение - ChatAIPRO',
   description: 'Пошаговое руководство по началу работы с бесплатным чатом ИИ. Советы и рекомендации для эффективного общения с искусственным интеллектом.',
-  keywords: 'бесплатный чат ии, как начать общение с ии, бесплатный gpt, чат бот бесплатно, ии помощник бесплатно',
+  keywords: 'бесплатный чат ии, как начать общение с ии, бесплатный gpt, чат бот бесплатно, ии помощник бесплатно, бесплатный чат gpt, как использовать ии бесплатно',
   openGraph: {
     title: 'Бесплатный чат с ИИ: Как начать общение',
     description: 'Пошаговое руководство по началу работы с бесплатным чатом ИИ.',
@@ -14,11 +14,49 @@ export const metadata: Metadata = {
     locale: 'ru_RU',
     type: 'article',
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Бесплатный чат с ИИ: Как начать общение',
+    description: 'Пошаговое руководство по началу работы с бесплатным чатом ИИ.',
+  },
 }
 
 export default function FreeAiChatArticle() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background-secondary to-background">
+    <>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              "headline": "Бесплатный чат с ИИ: Как начать общение",
+              "description": "Пошаговое руководство по началу работы с бесплатным чатом ИИ. Советы и рекомендации для эффективного общения с искусственным интеллектом.",
+              "image": "https://aichat-pro.ru/blog/free-ai-chat.jpg",
+              "author": {
+                "@type": "Organization",
+                "name": "ChatAIPRO"
+              },
+              "publisher": {
+                "@type": "Organization",
+                "name": "ChatAIPRO",
+                "logo": {
+                  "@type": "ImageObject",
+                  "url": "https://aichat-pro.ru/logo.png"
+                }
+              },
+              "datePublished": "2025-01-25",
+              "dateModified": "2025-01-25",
+              "mainEntityOfPage": {
+                "@type": "WebPage",
+                "@id": "https://aichat-pro.ru/blog/free-ai-chat"
+              }
+            })
+          }}
+        />
+      </head>
+      <div className="min-h-screen bg-gradient-to-br from-background via-background-secondary to-background">
       {/* Header */}
       <header className="relative z-10">
         <div className="container mx-auto px-6 py-4">
@@ -394,5 +432,6 @@ export default function FreeAiChatArticle() {
         </div>
       </footer>
     </div>
+    </>
   )
 }

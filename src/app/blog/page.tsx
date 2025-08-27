@@ -4,8 +4,8 @@ import { ArrowRight, Calendar, Clock, Tag } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Блог ChatAIPRO - Статьи об ИИ и чат-ботах',
-  description: 'Читайте статьи о чате GPT без VPN, искусственном интеллекте, чат-ботах и современных технологиях ИИ.',
-  keywords: 'блог чат гпт, статьи ии, чат бот статьи, gpt без vpn статьи, искусственный интеллект блог',
+  description: 'Читайте статьи о чате GPT без VPN, искусственном интеллекте, чат-ботах и современных технологиях ИИ. Актуальные новости и руководства.',
+  keywords: 'блог чат гпт, статьи ии, чат бот статьи, gpt без vpn статьи, искусственный интеллект блог, статьи про ии, блог про чат ботов',
   openGraph: {
     title: 'Блог ChatAIPRO - Статьи об ИИ и чат-ботах',
     description: 'Читайте статьи о чате GPT без VPN, искусственном интеллекте и современных технологиях ИИ.',
@@ -13,6 +13,11 @@ export const metadata: Metadata = {
     siteName: 'ChatAIPRO',
     locale: 'ru_RU',
     type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Блог ChatAIPRO - Статьи об ИИ и чат-ботах',
+    description: 'Читайте статьи о чате GPT без VPN, искусственном интеллекте и современных технологиях ИИ.',
   },
 }
 
@@ -51,7 +56,53 @@ const blogPosts = [
 
 export default function BlogPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background-secondary to-background">
+    <>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Blog",
+              "name": "Блог ChatAIPRO",
+              "description": "Статьи об искусственном интеллекте, чат-ботах и современных технологиях ИИ",
+              "url": "https://aichat-pro.ru/blog",
+              "publisher": {
+                "@type": "Organization",
+                "name": "ChatAIPRO",
+                "logo": {
+                  "@type": "ImageObject",
+                  "url": "https://aichat-pro.ru/logo.png"
+                }
+              },
+              "blogPost": [
+                {
+                  "@type": "BlogPosting",
+                  "headline": "Чат GPT без VPN: Полное руководство",
+                  "description": "Узнайте, как получить доступ к GPT-4 и другим ИИ моделям без использования VPN.",
+                  "url": "https://aichat-pro.ru/blog/chat-gpt-bez-vpn",
+                  "datePublished": "2025-01-27"
+                },
+                {
+                  "@type": "BlogPosting",
+                  "headline": "Сравнение ИИ моделей: GPT-4 vs Claude vs DeepSeek",
+                  "description": "Подробное сравнение лучших ИИ моделей. Какая модель подходит для ваших задач?",
+                  "url": "https://aichat-pro.ru/blog/ai-models-comparison",
+                  "datePublished": "2025-01-26"
+                },
+                {
+                  "@type": "BlogPosting",
+                  "headline": "Бесплатный чат с ИИ: Как начать общение",
+                  "description": "Пошаговое руководство по началу работы с бесплатным чатом ИИ.",
+                  "url": "https://aichat-pro.ru/blog/free-ai-chat",
+                  "datePublished": "2025-01-25"
+                }
+              ]
+            })
+          }}
+        />
+      </head>
+      <div className="min-h-screen bg-gradient-to-br from-background via-background-secondary to-background">
       {/* Header */}
       <header className="relative z-10">
         <div className="container mx-auto px-6 py-4">
@@ -207,5 +258,6 @@ export default function BlogPage() {
         </div>
       </footer>
     </div>
+    </>
   )
 }
