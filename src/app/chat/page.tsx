@@ -448,7 +448,7 @@ export default function HomePage() {
           isMobile={isMobile}
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
-          canCreateChat={isPro} // Используем isPro для определения возможности создания чата
+          canCreateChat={canCreateChat}
         />
       )}
 
