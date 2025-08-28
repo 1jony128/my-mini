@@ -81,7 +81,7 @@ export default function RootLayout({
         <link rel="shortcut icon" href="/favicon.ico" />
         
         {/* Web App Manifest */}
-        <link rel="manifest" href="/manifest.json" />
+        <link rel="manifest" href="/api/manifest" />
         
         {/* Sitemap */}
         <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
