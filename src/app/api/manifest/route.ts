@@ -12,7 +12,7 @@ export async function GET() {
     orientation: "portrait-primary",
     icons: [
       {
-        src: "/favicon.svg",
+        src: "/api/favicon.svg",
         sizes: "any",
         type: "image/svg+xml",
         purpose: "any maskable"
