@@ -24,13 +24,13 @@ RUN npm run build
 FROM base AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 # Создаем пользователя nextjs для безопасности
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Копируем собранное приложение
-COPY --from=builder /app/public ./public
+# Копируем собранное приложение (если папка существует)
+COPY --from=builder /app/public ./public 2>/dev/null || true
 
 # Автоматически используем output standalone для оптимизации образа
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
@@ -40,8 +40,8 @@ USER nextjs
 
 EXPOSE 8080
 
-ENV PORT 8080
-ENV HOSTNAME "0.0.0.0"
+ENV PORT=8080
+ENV HOSTNAME="0.0.0.0"
 
 # Запускаем приложение
 CMD ["node", "server.js"]
