@@ -17,7 +17,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Собираем приложение
+# Собираем приложение для продакшена
 RUN npm run build
 
 # Продакшн образ, копируем все файлы и запускаем next
@@ -25,7 +25,7 @@ FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
-# Создаем пользователя nextjs
+# Создаем пользователя nextjs для безопасности
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
@@ -43,4 +43,5 @@ EXPOSE 3000
 ENV PORT 3000
 ENV HOSTNAME "0.0.0.0"
 
+# Запускаем приложение
 CMD ["node", "server.js"]
