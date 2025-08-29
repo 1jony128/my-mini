@@ -2,6 +2,8 @@
 .vercel
 *.md
 .DS_Store
+# Исключаем .htaccess из Docker образа, но оставляем index.html
+.htaccess
 node_modules
 npm-debug.log*
 yarn-debug.log*
