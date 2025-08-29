@@ -4,6 +4,8 @@ import { checkProLimits, updateProUsage } from '@/lib/pro-credits'
 import { checkDailyLimits, incrementDailyUsage } from '@/lib/daily-limits'
 import { supabaseAdmin } from '@/lib/supabase'
 
+export const runtime = 'nodejs'
+
 export async function POST(request: NextRequest) {
   try {
     const { messages, model, chatId } = await request.json()

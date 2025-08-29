@@ -1,6 +1,9 @@
 // @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { createPayment } from '@/lib/yookassa'
+
+export const runtime = 'nodejs'
 
 export async function POST(request: NextRequest) {
   try {

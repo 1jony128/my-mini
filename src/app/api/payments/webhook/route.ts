@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getPayment, verifyWebhookSignature } from '@/lib/yookassa'
 import { supabaseAdmin } from '@/lib/supabase'
 
+export const runtime = 'nodejs'
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.text()

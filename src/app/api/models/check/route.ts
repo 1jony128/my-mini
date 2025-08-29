@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { AI_MODELS } from '@/lib/ai-models'
+import { supabaseAdmin } from '@/lib/supabase'
+
+export const runtime = 'nodejs'
 
 export async function POST(request: NextRequest) {
   try {
