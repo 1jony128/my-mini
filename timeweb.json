@@ -1,13 +1,8 @@
 {
-  "build": {
-    "command": "npm run build",
-    "output": ".next"
-  },
-  "start": {
-    "command": "npm start",
-    "port": 3000
-  },
-  "env": {
-    "NODE_ENV": "production"
-  }
+  "type": "nextjs",
+  "buildCommand": "npm run build",
+  "outputDirectory": "out",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "staticGeneration": true
 }

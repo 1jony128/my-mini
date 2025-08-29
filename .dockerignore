@@ -12,3 +12,5 @@ README.md
 .gitignore
 .next
 .vercel
+*.md
+.DS_Store
