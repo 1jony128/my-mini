@@ -1,0 +1,13 @@
+{
+  "build": {
+    "command": "npm run build",
+    "output": ".next"
+  },
+  "start": {
+    "command": "npm start",
+    "port": 3000
+  },
+  "env": {
+    "NODE_ENV": "production"
+  }
+}
