@@ -31,7 +31,7 @@ export default function HomePage() {
   const [currentChatId, setCurrentChatId] = useState<string | null>(null)
   const [models, setModels] = useState<Array<{ id: string; name: string; provider: string; is_free: boolean }>>([])
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
+  const [isMobile, setIsMobile] = useState<boolean | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [chats, setChats] = useState<Chat[]>([])
   const [userTokens, setUserTokens] = useState(1250)
@@ -95,7 +95,7 @@ export default function HomePage() {
 
   // Закрываем сайдбар при изменении размера экрана на десктоп
   useEffect(() => {
-    if (!isMobile && isSidebarOpen) {
+    if (isMobile !== null && !isMobile && isSidebarOpen) {
       setIsSidebarOpen(false)
     }
   }, [isMobile, isSidebarOpen])
@@ -356,7 +356,7 @@ export default function HomePage() {
     setError(null)
     
     // Закрываем сайдбар на мобильных устройствах при создании нового чата
-    if (isMobile) {
+    if (isMobile === true) {
       setIsSidebarOpen(false)
     }
   }
@@ -369,7 +369,7 @@ export default function HomePage() {
       setError(null)
       
       // Закрываем сайдбар на мобильных устройствах при выборе чата
-      if (isMobile) {
+      if (isMobile === true) {
         setIsSidebarOpen(false)
       }
 
@@ -479,7 +479,7 @@ export default function HomePage() {
   return (
     <div className="flex h-screen bg-background">
       {/* Боковая панель с чатами (только для десктопа) */}
-      {!isMobile && (
+      {isMobile === false && (
         <ChatSidebar
           chats={chats}
           currentChatId={currentChatId}
@@ -500,7 +500,7 @@ export default function HomePage() {
       {/* Основной интерфейс чата */}
       <div className="flex-1">
         {/* Мобильная кнопка меню */}
-        {isMobile && (
+        {isMobile === true && (
           <div className="absolute top-2 left-2 z-30">
             <button
               onClick={() => setIsSidebarOpen(true)}
@@ -533,7 +533,7 @@ export default function HomePage() {
       </div>
 
       {/* Мобильная сайдбара */}
-      {isMobile && (
+      {isMobile === true && (
         <ChatSidebar
           chats={chats}
           currentChatId={currentChatId}
