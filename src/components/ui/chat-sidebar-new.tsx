@@ -107,6 +107,8 @@ export function ChatSidebar({
     setEditingTitle('')
   }
 
+  console.log('isMobile', isMobile)
+
   const sidebarContent = (
     <div className={`${isMobile ? 'w-full' : 'w-80'} bg-background-secondary border-r border-border flex flex-col h-full`}>
       {/* Mobile Header */}

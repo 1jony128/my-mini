@@ -260,7 +260,7 @@ export function ChatInterface({
       </motion.div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-6 relative z-10">
+      <div style={{     height: `calc(-217px + 100vh)` }} className=" overflow-y-auto p-6 space-y-6 relative z-10">
         {/* PRO Upgrade Banner */}
         <ProUpgradeBanner
           isVisible={showProBanner}

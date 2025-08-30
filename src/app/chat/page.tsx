@@ -80,11 +80,12 @@ export default function HomePage() {
 
   // Отладочная информация (убираем для чистоты консоли)
 
- 
+ console.log('isMobileHome', isMobile)
 
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768)
+      console.log('checkMobileHome', window.innerWidth)
     }
     
     checkMobile()
@@ -533,7 +534,7 @@ export default function HomePage() {
       </div>
 
       {/* Мобильная сайдбара */}
-      {isMobile === true && (
+      {isMobile && (
         <ChatSidebar
           chats={chats}
           currentChatId={currentChatId}
@@ -548,6 +549,7 @@ export default function HomePage() {
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
           canCreateChat={canCreateChat}
+          isMobile={isMobile}
         />
       )}
     </div>
