@@ -25,6 +25,16 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/',
   },
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon-16x16.png', type: 'image/png', sizes: '16x16' },
+      { url: '/favicon-32x32.png', type: 'image/png', sizes: '32x32' },
+    ],
+    apple: '/apple-touch-icon.png',
+    shortcut: '/favicon.ico',
+  },
   openGraph: {
     title: 'ChatAIPRO - Чат GPT без VPN | Бесплатный доступ к ИИ',
     description: 'Чат GPT без VPN - бесплатный доступ к GPT-4, Claude, DeepSeek и другим ИИ моделям. Общайтесь с искусственным интеллектом без ограничений.',
@@ -62,6 +72,11 @@ export const metadata: Metadata = {
     google: 'google1234567890abcdef',
     yandex: 'your-yandex-verification-code',
   },
+  other: {
+    'theme-color': '#3B82F6',
+    'msapplication-TileColor': '#3B82F6',
+    'msapplication-config': '/browserconfig.xml',
+  },
 }
 
 export default function RootLayout({
@@ -72,26 +87,6 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <head>
-        {/* Favicon для разных устройств и браузеров */}
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16" />
-        <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="shortcut icon" href="/favicon.ico" />
-        
-        {/* Web App Manifest */}
-        <link rel="manifest" href="/manifest.json" />
-        
-        {/* Sitemap */}
-        <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
-        
-        {/* Meta теги */}
-        <meta name="theme-color" content="#3B82F6" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="msapplication-TileColor" content="#3B82F6" />
-        <meta name="msapplication-config" content="/browserconfig.xml" />
-        
         {/* Структурированные данные для Google */}
         <script
           type="application/ld+json"
@@ -124,6 +119,25 @@ export default function RootLayout({
             gtag('config', 'GA_MEASUREMENT_ID');
           `}
         </Script>
+        
+        {/* Yandex.Metrika counter */}
+        <Script id="yandex-metrika" strategy="afterInteractive">
+          {`
+            (function(m,e,t,r,i,k,a){
+                m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+                m[i].l=1*new Date();
+                for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+                k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+            })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=103950990', 'ym');
+
+            ym(103950990, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+          `}
+        </Script>
+        <noscript>
+          <div>
+            <img src="https://mc.yandex.ru/watch/103950990" style={{position:'absolute', left:'-9999px'}} alt="" />
+          </div>
+        </noscript>
       </head>
       <body className={inter.className}>
         <ThemeProvider>
