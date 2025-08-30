@@ -93,6 +93,13 @@ export default function HomePage() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
+  // Закрываем сайдбар при изменении размера экрана на десктоп
+  useEffect(() => {
+    if (!isMobile && isSidebarOpen) {
+      setIsSidebarOpen(false)
+    }
+  }, [isMobile, isSidebarOpen])
+
   // Если пользователь не авторизован, показываем загрузку или перенаправляем
   if (!user && !loading) {
     router.replace('/')
@@ -347,6 +354,11 @@ export default function HomePage() {
     setMessages([])
     setInputMessage('')
     setError(null)
+    
+    // Закрываем сайдбар на мобильных устройствах при создании нового чата
+    if (isMobile) {
+      setIsSidebarOpen(false)
+    }
   }
 
   const handleSelectChat = async (chatId: string) => {
@@ -355,6 +367,11 @@ export default function HomePage() {
       setCurrentChatId(chatId)
       setMessages([])
       setError(null)
+      
+      // Закрываем сайдбар на мобильных устройствах при выборе чата
+      if (isMobile) {
+        setIsSidebarOpen(false)
+      }
 
       // Загружаем сообщения для выбранного чата
       const { data: messagesData, error: messagesError } = await supabase
