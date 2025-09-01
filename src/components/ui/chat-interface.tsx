@@ -1,7 +1,5 @@
-'use client'
-
 import { useState, useEffect, useRef } from 'react'
-import { Send, Mic, Sparkles, Bot, User, Loader2, Copy, Check, Crown } from 'lucide-react'
+import { Send, Mic, Sparkles, Loader2, Copy, Check, Crown } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism'
@@ -53,13 +51,12 @@ export function ChatInterface({
   models,
   onClearChat,
   onExportChat,
-  onBack,
-  userTokens = 0,
+
   isPro = false,
   isMobile = false,
   error = null
 }: ChatInterfaceProps) {
-  const [isTyping, setIsTyping] = useState(false)
+
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null)
   const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null)
   const [showProBanner, setShowProBanner] = useState(false)
@@ -193,9 +190,7 @@ export function ChatInterface({
     }
   }
 
-  useEffect(() => {
-    setIsTyping(inputMessage.length > 0)
-  }, [inputMessage])
+
 
   return (
     <div className="flex flex-col h-screen bg-background">
@@ -208,8 +203,6 @@ export function ChatInterface({
           isMobile ? 'p-2' : 'p-6'
         }`}
       >
-
-
         <div className={`flex items-center space-x-4 ${isMobile ? 'space-x-1' : ''}`}>
           <select
             value={selectedModel}
@@ -260,7 +253,7 @@ export function ChatInterface({
       </motion.div>
 
       {/* Messages */}
-      <div style={{     height: `calc(-217px + 100vh)` }} className=" overflow-y-auto p-6 space-y-6 relative z-10">
+      <div style={{ height: `calc(-217px + 100vh)` }} className="overflow-y-auto p-6 space-y-6 relative z-10">
         {/* PRO Upgrade Banner */}
         <ProUpgradeBanner
           isVisible={showProBanner}
@@ -402,7 +395,7 @@ export function ChatInterface({
             </motion.div>
           ))}
 
-                    {isStreaming && !streamingMessage && (
+          {isStreaming && !streamingMessage && (
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
@@ -432,7 +425,7 @@ export function ChatInterface({
                       <div className="w-2 h-2 bg-text-secondary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
                       <div className="w-2 h-2 bg-text-secondary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                     </div>
-                    <span className="text-sm text-text-secondary">AI печатает...</span>
+                    <span className="text-sm text-text-secondary">AI думает...</span>
                   </div>
                 </div>
               </div>
@@ -541,14 +534,13 @@ export function ChatInterface({
               rows={1}
               disabled={isLoading || (showProBanner && !isPro)}
             />
-          
           </div>
 
           <motion.button
             id='voice'
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className={` h-full  bg-muted hover:bg-accent rounded-2xl transition-colors text-text-primary ${
+            className={`h-full bg-muted hover:bg-accent rounded-2xl transition-colors text-text-primary ${
               isMobile ? 'p-2' : 'p-3'
             }`}
           >
@@ -572,19 +564,19 @@ export function ChatInterface({
           </motion.button>
         </div>
 
-                  <div className={`flex justify-between items-center mt-4 text-text-secondary ${
-            isMobile ? 'text-xs' : 'text-sm'
-          }`}>
-            <span className={isMobile ? 'truncate max-w-[120px]' : ''}>
-              {models.find(m => m.id === selectedModel)?.name || 'Загрузка...'}
+        <div className={`flex justify-between items-center mt-4 text-text-secondary ${
+          isMobile ? 'text-xs' : 'text-sm'
+        }`}>
+          <span className={isMobile ? 'truncate max-w-[120px]' : ''}>
+            {models.find(m => m.id === selectedModel)?.name || 'Загрузка...'}
+          </span>
+          {isPro && (
+            <span className="flex items-center space-x-1">
+              <Crown className="w-3 h-3 text-secondary" />
+              <span>PRO</span>
             </span>
-            {isPro && (
-              <span className="flex items-center space-x-1">
-                <Crown className="w-3 h-3 text-secondary" />
-                <span>PRO</span>
-              </span>
-            )}
-          </div>
+          )}
+        </div>
       </motion.div>
     </div>
   )

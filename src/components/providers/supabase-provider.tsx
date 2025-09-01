@@ -47,7 +47,7 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
 
     // Подписываемся на изменения состояния аутентификации
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      (_: any, session: any) => {
         setUser(session?.user ?? null)
         setLoading(false)
       }
@@ -55,8 +55,6 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
 
     return () => subscription.unsubscribe()
   }, [])
-
-  // console.log('SupabaseProvider - rendering with user:', user?.email, 'loading:', loading)
 
   return (
     <SupabaseContext.Provider value={{ user, loading, supabase }}>

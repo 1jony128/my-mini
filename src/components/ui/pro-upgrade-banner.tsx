@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-import { Crown, X, Zap, Star, Check } from 'lucide-react'
+
+import { Crown, X, Zap, Check } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import Link from 'next/link'
+import { Link } from 'react-router-dom'
 
 interface ProUpgradeBannerProps {
   isVisible: boolean
@@ -12,14 +12,10 @@ interface ProUpgradeBannerProps {
 }
 
 export function ProUpgradeBanner({ isVisible, onClose, selectedModel }: ProUpgradeBannerProps) {
-  const [isClosing, setIsClosing] = useState(false)
+
 
   const handleClose = () => {
-    setIsClosing(true)
-    setTimeout(() => {
-      onClose()
-      setIsClosing(false)
-    }, 300)
+    onClose()
   }
 
   if (!isVisible) return null
@@ -83,7 +79,7 @@ export function ProUpgradeBanner({ isVisible, onClose, selectedModel }: ProUpgra
               
               <div className="flex items-center space-x-3">
                 <Link
-                  href="/upgrade"
+                  to="/upgrade"
                   className="bg-white text-amber-600 px-4 py-2 rounded-lg font-semibold hover:bg-white/90 transition-colors flex items-center space-x-2"
                 >
                   <Zap className="w-4 h-4" />

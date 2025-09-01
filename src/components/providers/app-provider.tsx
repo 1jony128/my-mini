@@ -3,8 +3,8 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { useSupabase } from './supabase-provider'
-import { Chat, Message } from '@/types'
-import { chatStorage, messageStorage } from '@/lib/localStorage'
+import { Chat } from '@/types'
+import { chatStorage } from '@/lib/localStorage'
 import { supabase } from '@/lib/supabase'
 
 interface AppContextType {
@@ -147,7 +147,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         .eq('id', chatId)
 
       if (error) {
-        console.error('Ошибка обновления названия чата:', error)
+        console.error('Ошибка обновления названия чата в базе данных:', error)
         throw error
       }
 

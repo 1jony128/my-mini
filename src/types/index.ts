@@ -15,29 +15,28 @@ export interface Chat {
   model: string
   created_at: string
   updated_at: string
-  last_message?: string
 }
 
 export interface Message {
   id: string
-  chat_id: string
-  user_id: string
-  content: string
   role: 'user' | 'assistant'
-  model: string
-  tokens_used: number
-  created_at: string
+  content: string
   timestamp?: Date
-  formatted_time?: string
+  created_at?: string
+  model?: string
+  chat_id?: string
+  user_id?: string
+  tokens_used?: number
 }
 
 export interface AIModel {
   id: string
   name: string
-  provider: 'openai' | 'anthropic' | 'deepseek' | 'openrouter' | 'grok'
+  provider: 'openai' | 'anthropic' | 'deepseek' | 'openrouter' | 'grok' | 'google'
   is_free: boolean
-  max_tokens: number
-  daily_limit: number
+  max_tokens?: number
+  daily_limit?: number
+  description?: string
 }
 
 export interface Subscription {

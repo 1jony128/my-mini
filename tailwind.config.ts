@@ -38,6 +38,14 @@ const config: Config = {
         error: 'var(--error)',
         warning: 'var(--warning)',
         info: 'var(--info)',
+        // Добавляем стандартные цвета для градиентов
+        amber: {
+          500: '#F59E0B',
+        },
+        orange: {
+          500: '#F97316',
+        },
+
       },
     },
   },

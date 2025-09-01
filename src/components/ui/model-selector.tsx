@@ -4,16 +4,17 @@ import { useState, useEffect } from 'react'
 import { ChevronDown, Check, AlertCircle, Zap, Crown, Lock } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSupabase } from '@/components/providers/supabase-provider'
-import { getModelCost, isModelAvailableForPlan, getAvailableModelsForPlan } from '@/lib/pro-credits'
+import { getModelCost, isModelAvailableForPlan } from '@/lib/pro-credits'
 import { ProUpgradeBanner } from './pro-upgrade-banner'
+import { checkModelAvailability } from '@/api/models-check'
 
 interface Model {
   id: string
   name: string
   provider: string
   is_free: boolean
-  max_tokens: number
-  daily_limit: number
+  max_tokens?: number
+  daily_limit?: number
 }
 
 interface ModelSelectorProps {
@@ -59,7 +60,7 @@ export function ModelSelector({ models, selectedModel, onModelChange, isLoading 
 
   // Проверяем доступность моделей
   useEffect(() => {
-    const checkModelAvailability = async () => {
+    const checkModelsAvailability = async () => {
       const status: Record<string, 'available' | 'unavailable' | 'unknown'> = {}
       
       // Проверяем только первые несколько моделей для производительности
@@ -67,15 +68,8 @@ export function ModelSelector({ models, selectedModel, onModelChange, isLoading 
       
       for (const model of modelsToCheck) {
         try {
-          const response = await fetch('/api/models/check', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ modelId: model.id })
-          })
-          
-          status[model.id] = response.ok ? 'available' : 'unavailable'
+          const result = await checkModelAvailability({ modelId: model.id })
+          status[model.id] = result.available ? 'available' : 'unavailable'
         } catch (error) {
           status[model.id] = 'unknown'
         }
@@ -84,7 +78,7 @@ export function ModelSelector({ models, selectedModel, onModelChange, isLoading 
       setModelStatus(status)
     }
 
-    checkModelAvailability()
+    checkModelsAvailability()
   }, [models])
 
   // Проверяем доступность модели для плана

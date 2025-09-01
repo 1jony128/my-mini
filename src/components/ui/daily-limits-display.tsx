@@ -1,10 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { AlertTriangle, CheckCircle, XCircle, Info, Clock, AlertCircle } from 'lucide-react'
+import { AlertTriangle, CheckCircle, Clock, AlertCircle } from 'lucide-react'
 import { useSupabase } from '@/components/providers/supabase-provider'
-import { SafeNumber } from '@/components/ui/safe-number'
 
 interface DailyLimitsData {
   isPro: boolean
@@ -24,43 +23,77 @@ interface DailyLimitsData {
 }
 
 export function DailyLimitsDisplay() {
-  const [dailyLimits, setDailyLimits] = useState<DailyLimitsData | null>(null)
+  const [data, setData] = useState<DailyLimitsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const { supabase } = useSupabase()
 
   useEffect(() => {
-    fetchDailyLimits()
-  }, [])
-
-  const fetchDailyLimits = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) {
-        setError('Не авторизован')
-        setLoading(false)
-        return
-      }
-
-      const response = await fetch('/api/daily-limits', {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`
+    const fetchLimits = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) {
+          setError('Не авторизован')
+          setLoading(false)
+          return
         }
-      })
 
-      if (!response.ok) {
-        throw new Error('Ошибка загрузки лимитов')
+        // Пользователь
+        const { data: userRow } = await supabase
+          .from('users')
+          .select('is_pro, pro_plan_type, daily_tokens_used')
+          .eq('id', session.user.id)
+          .single()
+
+        const isPro = !!userRow?.is_pro
+        const proPlanType = (userRow as any)?.pro_plan_type ?? null
+
+        // Лимиты (приближенно как в Next)
+        const requestLimit = isPro ? 100 : 20
+        const tokenLimit = isPro ? 25000 : 5000
+
+        // Подсчет использования за сегодня
+        const startOfDay = new Date()
+        startOfDay.setHours(0, 0, 0, 0)
+
+        const { count: requestsUsed } = await supabase
+          .from('messages')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', session.user.id)
+          .gte('created_at', startOfDay.toISOString())
+
+        const { data: tokensRows } = await supabase
+          .from('messages')
+          .select('tokens_used, created_at')
+          .eq('user_id', session.user.id)
+          .gte('created_at', startOfDay.toISOString())
+
+        const tokensUsed = (tokensRows || []).reduce((sum: number, row: any) => sum + (row.tokens_used || 0), 0)
+
+        const dailyLimits = {
+          allowed: (requestsUsed || 0) < requestLimit && tokensUsed < tokenLimit,
+          limit: requestLimit,
+          used: requestsUsed || 0,
+          remaining: Math.max(0, requestLimit - (requestsUsed || 0)),
+          reason: (requestsUsed || 0) >= requestLimit ? 'DAILY_REQUEST_LIMIT_EXCEEDED' : (tokensUsed >= tokenLimit ? 'DAILY_TOKEN_LIMIT_EXCEEDED' : undefined)
+        }
+
+        const dailyTokens = {
+          limit: tokenLimit,
+          used: tokensUsed,
+          remaining: Math.max(0, tokenLimit - tokensUsed)
+        }
+
+        setData({ isPro, proPlanType, dailyLimits, dailyTokens })
+      } catch (e) {
+        setError('Не удалось загрузить лимиты')
+      } finally {
+        setLoading(false)
       }
-
-      const data = await response.json()
-      setDailyLimits(data)
-    } catch (err) {
-      console.error('Ошибка загрузки дневных лимитов:', err)
-      setError('Не удалось загрузить лимиты')
-    } finally {
-      setLoading(false)
     }
-  }
+
+    fetchLimits()
+  }, [supabase])
 
   if (loading) {
     return (
@@ -73,37 +106,28 @@ export function DailyLimitsDisplay() {
     )
   }
 
-  if (error) {
+  if (error || !data) {
     return (
       <div className="p-4 bg-background rounded-lg border border-border">
         <div className="flex items-center space-x-2 text-error">
           <AlertTriangle className="w-4 h-4" />
-          <span className="text-sm">{error}</span>
+          <span className="text-sm">{error || 'Ошибка загрузки лимитов'}</span>
         </div>
       </div>
     )
   }
 
-  if (!dailyLimits) {
-    return null
-  }
-
-  const { dailyLimits: limits, dailyTokens: tokens } = dailyLimits
-  const requestsPercentage = (limits.used / limits.limit) * 100
-  const tokensPercentage = (tokens.used / tokens.limit) * 100
+  const requestsPercentage = (data.dailyLimits.used / data.dailyLimits.limit) * 100
+  const tokensPercentage = (data.dailyTokens.used / data.dailyTokens.limit) * 100
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="p-4 bg-background rounded-lg border border-border"
-    >
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-background rounded-lg border border-border">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center space-x-2">
           <Clock className="w-4 h-4 text-primary" />
           <h3 className="text-sm font-medium text-text-primary">Дневные лимиты</h3>
         </div>
-        {limits.allowed ? (
+        {data.dailyLimits.allowed ? (
           <CheckCircle className="w-4 h-4 text-success" />
         ) : (
           <AlertCircle className="w-4 h-4 text-error" />
@@ -111,56 +135,32 @@ export function DailyLimitsDisplay() {
       </div>
 
       <div className="space-y-3">
-        {/* Прогресс бар запросов */}
         <div className="space-y-1">
           <div className="flex justify-between text-xs text-text-secondary">
-            <span>Запросы: <SafeNumber value={limits.used} />/<SafeNumber value={limits.limit} /></span>
-            <span><SafeNumber value={limits.remaining} /> осталось</span>
+            <span>Запросы: {data.dailyLimits.used}/{data.dailyLimits.limit}</span>
+            <span>{data.dailyLimits.remaining} осталось</span>
           </div>
           <div className="w-full bg-muted rounded-full h-2">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${Math.min(requestsPercentage, 100)}%` }}
-              transition={{ duration: 0.5 }}
-              className={`h-2 rounded-full ${
-                requestsPercentage > 80 ? 'bg-error' : 
-                requestsPercentage > 60 ? 'bg-warning' : 'bg-primary'
-              }`}
-            />
+            <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(requestsPercentage, 100)}%` }} transition={{ duration: 0.5 }} className={`h-2 rounded-full ${requestsPercentage > 80 ? 'bg-error' : requestsPercentage > 60 ? 'bg-warning' : 'bg-primary'}`} />
           </div>
         </div>
 
-        {/* Прогресс бар токенов */}
         <div className="space-y-1">
           <div className="flex justify-between text-xs text-text-secondary">
-            <span>Токены: <SafeNumber value={tokens.used} />/<SafeNumber value={tokens.limit} /></span>
-            <span><SafeNumber value={tokens.remaining} /> осталось</span>
+            <span>Токены: {data.dailyTokens.used}/{data.dailyTokens.limit}</span>
+            <span>{data.dailyTokens.remaining} осталось</span>
           </div>
           <div className="w-full bg-muted rounded-full h-2">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${Math.min(tokensPercentage, 100)}%` }}
-              transition={{ duration: 0.5 }}
-              className={`h-2 rounded-full ${
-                tokensPercentage > 80 ? 'bg-error' : 
-                tokensPercentage > 60 ? 'bg-warning' : 'bg-primary'
-              }`}
-            />
+            <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(tokensPercentage, 100)}%` }} transition={{ duration: 0.5 }} className={`h-2 rounded-full ${tokensPercentage > 80 ? 'bg-error' : tokensPercentage > 60 ? 'bg-warning' : 'bg-primary'}`} />
           </div>
         </div>
 
-        {/* Статус */}
         <div className="text-xs text-text-secondary">
-          {limits.allowed ? (
+          {data.dailyLimits.allowed ? (
             <span className="text-success">Лимиты не превышены</span>
           ) : (
             <div className="space-y-1">
-              <span className="text-error">
-                {limits.reason === 'DAILY_REQUEST_LIMIT_EXCEEDED' 
-                  ? 'Превышен лимит запросов' 
-                  : 'Превышен лимит токенов'
-                }
-              </span>
+              <span className="text-error">{data.dailyLimits.reason === 'DAILY_REQUEST_LIMIT_EXCEEDED' ? 'Превышен лимит запросов' : 'Превышен лимит токенов'}</span>
               <div className="flex items-center space-x-1 text-info">
                 <Clock className="w-3 h-3" />
                 <span>Завтра будет обновление</span>
@@ -169,11 +169,10 @@ export function DailyLimitsDisplay() {
           )}
         </div>
 
-        {/* Информация о плане */}
-        <div className="text-xs text-text-secondary">
-          План: {dailyLimits.isPro ? `PRO ${dailyLimits.proPlanType || ''}` : 'Starter'}
-        </div>
+        <div className="text-xs text-text-secondary">План: {data.isPro ? `PRO ${data.proPlanType || ''}` : 'Starter'}</div>
       </div>
     </motion.div>
   )
 }
+
+// (legacy simplified component removed)

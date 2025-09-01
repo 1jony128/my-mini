@@ -1,9 +1,7 @@
-import { useState, useEffect } from 'react'
-import { Plus, MessageSquare, Trash2, Settings, User, X, Zap, Sparkles, Moon, Sun } from 'lucide-react'
+import { useState } from 'react'
+import { MessageSquare, Trash2, Settings, User, X, Sparkles, Moon, Sun } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { supabase } from '@/lib/supabase'
 import { Chat } from '@/types'
-import { chatStorage } from '@/lib/localStorage'
 import { useApp } from '@/components/providers/app-provider'
 import { useTheme } from '@/components/providers/theme-provider'
 import toast from 'react-hot-toast'
@@ -37,13 +35,8 @@ export function ChatSidebar({
   onDeleteChat,
   onUpdateChatTitle,
   onSettings,
-  onUpgrade,
   onProfile,
-  userTokens = 0,
   isPro = false,
-  selectedModel,
-  onModelSelect,
-  models = [],
   isMobile = false,
   isOpen = false,
   onClose,
@@ -51,12 +44,10 @@ export function ChatSidebar({
 }: ChatSidebarProps) {
   const { updateChatTitle } = useApp()
   const { theme, toggleTheme } = useTheme()
-  const [loading, setLoading] = useState(false)
+
   const [editingChatId, setEditingChatId] = useState<string | null>(null)
   const [editingTitle, setEditingTitle] = useState('')
   const [hoveredChatId, setHoveredChatId] = useState<string | null>(null)
-
-
 
   const handleDeleteChat = async (chatId: string) => {
     // Находим чат для отображения названия в подтверждении
@@ -228,11 +219,7 @@ export function ChatSidebar({
         {/* Chat List */}
         <div>
           <h3 className="text-sm font-medium text-text-primary mb-3">Чаты</h3>
-          {loading ? (
-            <div className="flex items-center justify-center h-32">
-              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-            </div>
-          ) : chats.length === 0 ? (
+          {chats.length === 0 ? (
             <div className="text-center text-text-secondary mt-8">
               <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-50" />
               <p>Нет чатов</p>
