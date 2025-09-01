@@ -52,7 +52,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   // Предотвращаем гидратацию
   if (!mounted) {
-    return <div className="light">{children}</div>
+    return (
+      <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
+        <div className="light">{children}</div>
+      </ThemeContext.Provider>
+    )
   }
 
   return (
