@@ -6,17 +6,14 @@ WORKDIR /app
 # Копируем package.json и package-lock.json
 COPY package*.json ./
 
-# Устанавливаем зависимости
-RUN npm ci --only=production
+# Устанавливаем зависимости (включая dev для сборки)
+RUN npm ci
 
 # Копируем исходный код
 COPY . .
 
-# Собираем приложение
-RUN npm run build
-
-# Пререндерим страницы для SEO
-RUN npm run prerender:docker
+# Собираем приложение с пререндерингом
+RUN npm run build:production
 
 # Production stage
 FROM nginx:alpine

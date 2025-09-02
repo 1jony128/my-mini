@@ -2,8 +2,8 @@
 
 echo "🚀 Продакшн деплой ChatAI PRO с пререндерингом..."
 
-# Проверяем Docker
-if ! command -v docker &> /dev/null; then
+# Проверяем Docker (только если не в контейнере)
+if [ -z "$DOCKER_CONTAINER" ] && ! command -v docker &> /dev/null; then
     echo "❌ Docker не установлен!"
     exit 1
 fi
