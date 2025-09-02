@@ -19,6 +19,7 @@ import TermsPage from '@/pages/TermsPage'
 import BlogPage from '@/pages/BlogPage'
 import BlogPostPage from '@/pages/BlogPostPage'
 import GptBezVpnPage from '@/pages/GptBezVpnPage'
+import SitemapPage from '@/pages/SitemapPage'
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/blog/:slug" element={<BlogPostPage />} />
             <Route path="/gpt-bez-vpn" element={<GptBezVpnPage />} />
+            <Route path="/sitemap.xml" element={<SitemapPage />} />
           </Routes>
           <Toaster position="top-right" />
         </AppProvider>

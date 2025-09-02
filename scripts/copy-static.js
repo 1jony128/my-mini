@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // Копируем статические файлы в корень build директории
-const staticFiles = ['sitemap.xml', 'robots.txt']
+const staticFiles = ['sitemap.xml', 'robots.txt', '_redirects', '.htaccess', 'nginx.conf']
 
 staticFiles.forEach(file => {
   const sourcePath = path.join(__dirname, '../public', file)
