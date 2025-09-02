@@ -10,7 +10,7 @@ import { supabase } from '@/lib/supabase'
 import { messageStorage } from '@/lib/localStorage'
 import { ChatInterface } from '@/components/ui/chat-interface'
 import { getModels } from '@/api/models'
-import { sendChatMessage } from '@/api/chat'
+import { sendAIMessageStream } from '@/api/ai-chat'
 import { useMeta } from '@/hooks/useMeta'
 import { replaceModelNameInResponse, getModelDisplayName } from '@/utils/modelNameReplacer'
 
@@ -222,37 +222,20 @@ export default function ChatPage() {
         throw new Error('Не удалось получить токен сессии')
       }
       
-      // Отправляем сообщение в AI через API
-      const response = await sendChatMessage({
-        messages: [...messages, userMessage],
-        model: selectedModel,
-        chatId: chatId || '',
-      }, session.access_token!)
+      try {
+        // Отправляем сообщение в AI через Supabase Function
+        const stream = await sendAIMessageStream({
+          messages: [...messages, userMessage],
+          model: selectedModel,
+          chatId: chatId || '',
+          stream: true
+        })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        const errorMessage = errorData.error || 'Ошибка API'
-        
-        // Если ошибка 403 (платная модель для бесплатного пользователя), показываем плашку
-        if (response.status === 403 && errorMessage.includes('PRO пользователей')) {
-          // Удаляем сообщение пользователя
-          setMessages(prev => prev.filter(msg => msg.id !== userMessage.id))
-          // Показываем плашку PRO (это будет обработано в ChatInterface)
-          setIsLoading(false)
-          setIsStreaming(false)
-          return
+        // Получаем reader из stream
+        const reader = stream.getReader()
+        if (!reader) {
+          throw new Error('Не удалось получить поток')
         }
-        
-        setError(errorMessage)
-        // Удаляем сообщение пользователя при ошибке
-        setMessages(prev => prev.filter(msg => msg.id !== userMessage.id))
-        throw new Error(errorMessage)
-      }
-
-      const reader = response.body?.getReader()
-      if (!reader) {
-        throw new Error('Не удалось получить поток')
-      }
 
       let aiResponse = ''
       const decoder = new TextDecoder()
@@ -272,8 +255,8 @@ export default function ChatPage() {
             }
             try {
               const parsed = JSON.parse(data)
-              if (parsed.content) {
-                aiResponse += parsed.content
+              if (parsed.choices?.[0]?.delta?.content) {
+                aiResponse += parsed.choices[0].delta.content
                 // Применяем подмену названий модели в стриминговом ответе
                 const selectedModelDisplayName = getModelDisplayName(selectedModel, models)
                 const replacedStreamContent = replaceModelNameInResponse(aiResponse, selectedModelDisplayName)
@@ -325,12 +308,23 @@ export default function ChatPage() {
         setStreamingMessage('')
       }
 
-    } catch (error) {
-      console.error('Ошибка отправки сообщения:', error)
-      // Не показываем toast для ошибок лимитов, так как у нас есть красивое сообщение
-      if (!(error as any)?.message?.includes('лимит')) {
-        toast.error('Ошибка отправки сообщения')
+      } catch (error) {
+        console.error('Ошибка отправки сообщения:', error)
+        toast.error(error instanceof Error ? error.message : 'Произошла ошибка при отправке сообщения')
+        
+        // Удаляем пользовательское сообщение при ошибке
+        setMessages(prev => prev.filter(msg => msg.id !== userMessage.id))
+            } finally {
+        setIsLoading(false)
+        setIsStreaming(false)
+        setStreamingMessage('')
       }
+    } catch (error) {
+      console.error('Ошибка в handleSendMessage:', error)
+      toast.error('Произошла ошибка при обработке сообщения')
+      
+      // Удаляем пользовательское сообщение при ошибке
+      setMessages(prev => prev.filter(msg => msg.id !== userMessage.id))
     } finally {
       setIsLoading(false)
       setIsStreaming(false)

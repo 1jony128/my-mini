@@ -1,0 +1,63 @@
+{
+  "version": "5",
+  "redirects": {
+    "https://esm.sh/@supabase/supabase-js@2": "https://esm.sh/@supabase/supabase-js@2.56.1"
+  },
+  "remote": {
+    "https://deno.land/std@0.168.0/async/abortable.ts": "80b2ac399f142cc528f95a037a7d0e653296352d95c681e284533765961de409",
+    "https://deno.land/std@0.168.0/async/deadline.ts": "2c2deb53c7c28ca1dda7a3ad81e70508b1ebc25db52559de6b8636c9278fd41f",
+    "https://deno.land/std@0.168.0/async/debounce.ts": "60301ffb37e730cd2d6f9dadfd0ecb2a38857681bd7aaf6b0a106b06e5210a98",
+    "https://deno.land/std@0.168.0/async/deferred.ts": "77d3f84255c3627f1cc88699d8472b664d7635990d5358c4351623e098e917d6",
+    "https://deno.land/std@0.168.0/async/delay.ts": "5a9bfba8de38840308a7a33786a0155a7f6c1f7a859558ddcec5fe06e16daf57",
+    "https://deno.land/std@0.168.0/async/mod.ts": "7809ad4bb223e40f5fdc043e5c7ca04e0e25eed35c32c3c32e28697c553fa6d9",
+    "https://deno.land/std@0.168.0/async/mux_async_iterator.ts": "770a0ff26c59f8bbbda6b703a2235f04e379f73238e8d66a087edc68c2a2c35f",
+    "https://deno.land/std@0.168.0/async/pool.ts": "6854d8cd675a74c73391c82005cbbe4cc58183bddcd1fbbd7c2bcda42b61cf69",
+    "https://deno.land/std@0.168.0/async/retry.ts": "e8e5173623915bbc0ddc537698fa418cf875456c347eda1ed453528645b42e67",
+    "https://deno.land/std@0.168.0/async/tee.ts": "3a47cc4e9a940904fd4341f0224907e199121c80b831faa5ec2b054c6d2eff5e",
+    "https://deno.land/std@0.168.0/http/server.ts": "e99c1bee8a3f6571ee4cdeb2966efad465b8f6fe62bec1bdb59c1f007cc4d155",
+    "https://esm.sh/@supabase/supabase-js@2.56.1": "5cc7adee6789b3c1bd9959694ee1564da6005b87ef7bae8fd4e595e5959a5ccd"
+  },
+  "workspace": {
+    "packageJson": {
+      "dependencies": [
+        "npm:@anthropic-ai/sdk@0.60",
+        "npm:@hookform/resolvers@^3.3.2",
+        "npm:@prerenderer/rollup-plugin@~0.3.12",
+        "npm:@supabase/auth-helpers-react@~0.4.2",
+        "npm:@supabase/supabase-js@^2.38.5",
+        "npm:@types/react-dom@^18.2.15",
+        "npm:@types/react-syntax-highlighter@^15.5.11",
+        "npm:@types/react@^18.2.37",
+        "npm:@typescript-eslint/eslint-plugin@^6.10.0",
+        "npm:@typescript-eslint/parser@^6.10.0",
+        "npm:@vitejs/plugin-react@^4.1.1",
+        "npm:autoprefixer@^10.4.16",
+        "npm:class-variance-authority@0.7",
+        "npm:clsx@2",
+        "npm:date-fns@^2.30.0",
+        "npm:eslint-plugin-react-hooks@^4.6.0",
+        "npm:eslint-plugin-react-refresh@~0.4.4",
+        "npm:eslint@^8.53.0",
+        "npm:framer-motion@^12.23.12",
+        "npm:lucide-react@0.294",
+        "npm:openai@^4.20.1",
+        "npm:postcss@^8.4.31",
+        "npm:puppeteer@^24.18.0",
+        "npm:react-dom@^18.2.0",
+        "npm:react-hook-form@^7.48.2",
+        "npm:react-hot-toast@^2.6.0",
+        "npm:react-markdown@^9.1.0",
+        "npm:react-router-dom@^6.20.1",
+        "npm:react-syntax-highlighter@^15.6.6",
+        "npm:react@^18.2.0",
+        "npm:tailwind-merge@2",
+        "npm:tailwindcss@^3.3.5",
+        "npm:typescript@^5.2.2",
+        "npm:vite-plugin-windicss@^1.9.4",
+        "npm:vite@5",
+        "npm:zod@^3.22.4",
+        "npm:zustand@^4.4.7"
+      ]
+    }
+  }
+}
