@@ -15,6 +15,9 @@ COPY . .
 # Собираем приложение
 RUN npm run build
 
+# Пререндерим страницы для SEO
+RUN npm run prerender:docker
+
 # Production stage
 FROM nginx:alpine
 

@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  chatai-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: chatai-pro-production
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Используем продвинутую конфигурацию nginx
+      - ./nginx-advanced.conf:/etc/nginx/conf.d/default.conf:ro
+      # Том для кэша nginx
+      - nginx-cache:/var/cache/nginx
+      # Логи
+      - ./logs:/var/log/nginx
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    networks:
+      - chatai-network
+    labels:
+      - "com.docker.compose.service=chatai-production"
+      - "description=ChatAI PRO with prerendering for SEO"
+
+  # Опциональный сервис для регенерации пререндера
+  prerender-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    container_name: chatai-prerender-worker
+    volumes:
+      - prerender-data:/app/build
+    environment:
+      - NODE_ENV=production
+    command: >
+      sh -c "
+        echo 'Регенерация пререндеренных страниц...' &&
+        npm run prerender:docker &&
+        echo 'Пререндеринг завершен, выход...'
+      "
+    networks:
+      - chatai-network
+    profiles:
+      - tools
+
+volumes:
+  nginx-cache:
+    driver: local
+  prerender-data:
+    driver: local
+
+networks:
+  chatai-network:
+    driver: bridge

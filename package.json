@@ -10,12 +10,15 @@
     "preview": "vite preview",
     "prerender": "vite preview --port 4173 & sleep 5 && node scripts/prerender.js && kill $!",
     "prerender:build": "vite preview --port 4173 --host & sleep 8 && node scripts/prerender.js; pkill -f 'vite preview'",
+    "prerender:docker": "node scripts/prerender-docker.js",
     "build:prerender": "npm run build:static && npm run prerender",
     "copy-static": "node scripts/copy-static.js",
     "docker:build": "./scripts/docker-build.sh",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f",
+    "deploy:production": "./scripts/deploy-production.sh",
+    "docker:prerender": "docker-compose -f docker-compose.production.yml --profile tools run --rm prerender-worker",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
