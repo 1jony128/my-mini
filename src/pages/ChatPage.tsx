@@ -11,8 +11,18 @@ import { messageStorage } from '@/lib/localStorage'
 import { ChatInterface } from '@/components/ui/chat-interface'
 import { getModels } from '@/api/models'
 import { sendChatMessage } from '@/api/chat'
+import { useMeta } from '@/hooks/useMeta'
 
 export default function ChatPage() {
+  // SEO мета-теги для страницы чата
+  useMeta({
+    title: "Чат с ИИ - GPT-4, Claude, DeepSeek | ChatAI PRO",
+    description: "Общайтесь с передовыми ИИ-моделями: GPT-4, Claude 3.5 Sonnet, DeepSeek V3, Gemini Pro. Интеллектуальный чат-бот без ограничений и VPN.",
+    keywords: "чат с ии, gpt-4 онлайн, claude чат, deepseek чат, gemini pro, искусственный интеллект чат, умный чат-бот, ии помощник онлайн",
+    ogTitle: "Чат с ИИ - GPT-4, Claude, DeepSeek | ChatAI PRO",
+    ogDescription: "Общайтесь с передовыми ИИ-моделями: GPT-4, Claude 3.5 Sonnet, DeepSeek V3, Gemini Pro без ограничений.",
+    ogUrl: "https://aichat-pro.ru/chat"
+  })
   const { user, loading } = useSupabase()
   const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState('')

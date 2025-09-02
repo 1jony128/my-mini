@@ -1,7 +1,17 @@
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Shield, Zap, Globe, CheckCircle, Star } from 'lucide-react'
+import { useMeta } from '@/hooks/useMeta'
 
 export default function GptBezVpnPage() {
+  // SEO мета-теги для SEO страницы
+  useMeta({
+    title: "GPT без VPN: Полное руководство - ChatAI PRO",
+    description: "Узнайте, как получить доступ к GPT-4 и другим ИИ моделям без использования VPN. Полный гайд по Чат GPT без впн.",
+    keywords: "чат гпт без впн, gpt 4 без vpn, как использовать gpt без впн, chatgpt без впн россия, доступ к gpt-4 без vpn, бесплатный чат gpt",
+    ogTitle: "GPT без VPN: Полное руководство - ChatAI PRO",
+    ogDescription: "Узнайте, как получить доступ к GPT-4 и другим ИИ моделям без VPN.",
+    ogUrl: "https://aichat-pro.ru/gpt-bez-vpn"
+  })
   const navigate = useNavigate()
 
   const features = [

@@ -2,9 +2,20 @@ import { motion } from 'framer-motion'
 import { Zap, Shield, ArrowRight, Bot, Crown } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useSupabase } from '@/components/providers/supabase-provider'
+import { useMeta } from '@/hooks/useMeta'
 
 export default function LandingPage() {
   const { user, loading } = useSupabase()
+
+  // SEO мета-теги для главной страницы
+  useMeta({
+    title: "ChatAI PRO - Чат GPT без VPN | Бесплатный доступ к ИИ",
+    description: "Доступ к GPT-4, Claude, DeepSeek и другим ИИ-моделям без VPN. Общайтесь с искусственным интеллектом без ограничений. Безопасно и быстро.",
+    keywords: "чат гпт без впн, чат gpt без vpn, gpt 4 без впн, gpt 5 без впн, чат с ии, искусственный интеллект, gpt-4, claude, deepseek, чат-бот, ИИ помощник, бесплатный чат gpt, доступ к gpt без впн, gpt онлайн, ии чат бесплатно",
+    ogTitle: "ChatAI PRO - Чат GPT без VPN | Бесплатный доступ к ИИ",
+    ogDescription: "Доступ к GPT-4, Claude, DeepSeek и другим ИИ-моделям без VPN. Общайтесь с искусственным интеллектом без ограничений.",
+    ogUrl: "https://aichat-pro.ru/"
+  })
 
   // Показываем загрузку пока проверяем состояние авторизации
   if (loading) {

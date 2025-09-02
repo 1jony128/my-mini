@@ -4,8 +4,18 @@ import { Mail, Lock, Eye, EyeOff, Sparkles } from 'lucide-react'
 import { useSupabase } from '@/components/providers/supabase-provider'
 import { supabase } from '@/lib/supabase'
 import toast from 'react-hot-toast'
+import { useMeta } from '@/hooks/useMeta'
 
 export default function RegisterPage() {
+  // SEO мета-теги для страницы регистрации
+  useMeta({
+    title: "Регистрация аккаунта - ChatAI PRO | Бесплатный доступ к ИИ",
+    description: "Создайте бесплатный аккаунт ChatAI PRO для доступа к GPT-4, Claude, DeepSeek и другим ИИ-моделям. Регистрация без VPN за 1 минуту.",
+    keywords: "регистрация chatai pro, создать аккаунт gpt, бесплатная регистрация ии чат, signup deepseek, аккаунт claude чат",
+    ogTitle: "Регистрация аккаунта - ChatAI PRO",
+    ogDescription: "Создайте бесплатный аккаунт для доступа к передовым ИИ-моделям без VPN.",
+    ogUrl: "https://aichat-pro.ru/register"
+  })
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')

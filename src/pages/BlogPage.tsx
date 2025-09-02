@@ -1,7 +1,17 @@
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Calendar, User, Clock, BookOpen } from 'lucide-react'
+import { useMeta } from '@/hooks/useMeta'
 
 export default function BlogPage() {
+  // SEO мета-теги для страницы блога
+  useMeta({
+    title: "Блог об ИИ - ChatAI PRO | Новости искусственного интеллекта",
+    description: "Читайте последние новости и статьи об искусственном интеллекте, GPT-4, Claude, DeepSeek. Обзоры ИИ-моделей, советы и гайды.",
+    keywords: "блог об ии, новости искусственного интеллекта, обзоры gpt-4, статьи о claude, deepseek обзор, chatgpt новости, ии технологии",
+    ogTitle: "Блог об ИИ - ChatAI PRO",
+    ogDescription: "Читайте последние новости и статьи об искусственном интеллекте, GPT-4, Claude, DeepSeek.",
+    ogUrl: "https://aichat-pro.ru/blog"
+  })
   const navigate = useNavigate()
 
   const blogPosts = [

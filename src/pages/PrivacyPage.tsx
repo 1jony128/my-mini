@@ -1,7 +1,17 @@
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Shield, Lock, Eye, Database } from 'lucide-react'
+import { useMeta } from '@/hooks/useMeta'
 
 export default function PrivacyPage() {
+  // SEO мета-теги для страницы политики конфиденциальности
+  useMeta({
+    title: "Политика конфиденциальности - ChatAI PRO | Защита данных",
+    description: "Политика конфиденциальности ChatAI PRO. Узнайте, как мы защищаем ваши персональные данные при использовании ИИ-чата.",
+    keywords: "политика конфиденциальности, защита данных chatai pro, приватность ии чат, безопасность gpt-4",
+    ogTitle: "Политика конфиденциальности - ChatAI PRO",
+    ogDescription: "Узнайте, как мы защищаем ваши персональные данные при использовании ИИ-чата.",
+    ogUrl: "https://aichat-pro.ru/privacy"
+  })
   const navigate = useNavigate()
 
   return (

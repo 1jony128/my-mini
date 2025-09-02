@@ -1,7 +1,17 @@
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, FileText, Scale, AlertTriangle, Users } from 'lucide-react'
+import { useMeta } from '@/hooks/useMeta'
 
 export default function TermsPage() {
+  // SEO мета-теги для страницы условий использования
+  useMeta({
+    title: "Условия использования - ChatAI PRO | Правила сервиса",
+    description: "Условия использования сервиса ChatAI PRO. Правила и ограничения при работе с ИИ-моделями GPT-4, Claude, DeepSeek.",
+    keywords: "условия использования, правила chatai pro, ограничения ии чат, terms of service gpt-4",
+    ogTitle: "Условия использования - ChatAI PRO",
+    ogDescription: "Правила и ограничения при работе с ИИ-моделями GPT-4, Claude, DeepSeek.",
+    ogUrl: "https://aichat-pro.ru/terms"
+  })
   const navigate = useNavigate()
 
   return (

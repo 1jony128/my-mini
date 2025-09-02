@@ -4,8 +4,18 @@ import { Crown, Check, Star, Zap, ArrowLeft, Shield } from 'lucide-react'
 import { useSupabase } from '@/components/providers/supabase-provider'
 import { useApp } from '@/components/providers/app-provider'
 import { createPayment } from '@/api/payments'
+import { useMeta } from '@/hooks/useMeta'
 
 export default function UpgradePage() {
+  // SEO мета-теги для страницы upgrade
+  useMeta({
+    title: "PRO подписка - ChatAI PRO | Неограниченный доступ к ИИ",
+    description: "Получите PRO доступ к GPT-4, Claude, DeepSeek и другим ИИ-моделям. Неограниченные запросы, приоритетная поддержка, без очередей.",
+    keywords: "pro подписка gpt, платный доступ claude, неограниченный чат ии, gpt-4 pro план, deepseek премиум, chatai pro цена",
+    ogTitle: "PRO подписка - ChatAI PRO | Неограниченный доступ к ИИ",
+    ogDescription: "Получите PRO доступ к передовым ИИ-моделям. Неограниченные запросы без очередей.",
+    ogUrl: "https://aichat-pro.ru/upgrade"
+  })
   const { user, loading, supabase } = useSupabase()
   const { isPro } = useApp()
   const navigate = useNavigate()
