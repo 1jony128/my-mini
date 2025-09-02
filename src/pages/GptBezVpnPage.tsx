@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { ArrowLeft, Shield, Zap, Globe, CheckCircle, Star } from 'lucide-react'
 import { useMeta } from '@/hooks/useMeta'
 
@@ -71,9 +71,9 @@ export default function GptBezVpnPage() {
           </button>
           
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+            <Link to="/" className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center hover:bg-primary-dark transition-colors">
               <Globe className="w-5 h-5 text-white" />
-            </div>
+            </Link>
             <h1 className="text-xl font-bold text-text-primary">GPT без VPN</h1>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { MessageSquare, Trash2, Settings, User, X, Sparkles, Moon, Sun } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import { Chat } from '@/types'
 import { useApp } from '@/components/providers/app-provider'
 import { useTheme } from '@/components/providers/theme-provider'
@@ -42,6 +43,7 @@ export function ChatSidebar({
   onClose,
   canCreateChat
 }: ChatSidebarProps) {
+  const navigate = useNavigate()
   const { updateChatTitle } = useApp()
   const { theme, toggleTheme } = useTheme()
 
@@ -109,7 +111,7 @@ export function ChatSidebar({
             <div className="bg-primary rounded-lg flex items-center justify-center w-8 h-8">
               <Sparkles className="text-white w-5 h-5" />
             </div>
-            <h2 className="font-bold text-text-primary text-lg">AI Chat Pro</h2>
+            <h2 onClick={() => navigate('/')} className="font-bold text-text-primary text-lg">AI Chat Pro</h2>
           </div>
           <button
             onClick={onClose}
@@ -128,7 +130,7 @@ export function ChatSidebar({
               <div className="bg-primary rounded-lg flex items-center justify-center w-8 h-8">
                 <Sparkles className="text-white w-5 h-5" />
               </div>
-              <h2 className="font-bold text-text-primary text-xl">AI Chat Pro</h2>
+              <h2 onClick={() => navigate('/')} className="font-bold text-text-primary text-xl">AI Chat Pro</h2>
             </div>
           </div>
         </div>

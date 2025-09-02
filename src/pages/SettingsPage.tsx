@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useSupabase } from '@/components/providers/supabase-provider'
 import { useTheme } from '@/components/providers/theme-provider'
 import { motion } from 'framer-motion'
@@ -127,9 +127,9 @@ export default function SettingsPage() {
               </motion.button>
               
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <Link to="/" className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center hover:bg-primary-dark transition-colors">
                   <Settings className="w-5 h-5 text-white" />
-                </div>
+                </Link>
                 <h1 className="text-xl font-bold text-text-primary">Настройки</h1>
               </div>
             </motion.div>

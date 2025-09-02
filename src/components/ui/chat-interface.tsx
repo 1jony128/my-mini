@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Send, Mic, Sparkles, Loader2, Copy, Check, Crown } from 'lucide-react'
+import { Send, Sparkles, Loader2, Copy, Check } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism'
@@ -253,7 +253,7 @@ export function ChatInterface({
       </motion.div>
 
       {/* Messages */}
-      <div style={{ height: `calc(-140px + 100vh)` }} className="overflow-y-auto p-6 space-y-6 relative z-10">
+      <div style={{ height: `calc(-100px + 100vh)` }} className="overflow-y-auto p-6 space-y-6 relative z-10">
         {/* PRO Upgrade Banner */}
         <ProUpgradeBanner
           isVisible={showProBanner}
@@ -536,7 +536,7 @@ export function ChatInterface({
             />
           </div>
 
-          <motion.button
+          {/* <motion.button
             id='voice'
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -545,7 +545,7 @@ export function ChatInterface({
             }`}
           >
             <Mic className={`${isMobile ? 'w-4 h-4' : 'w-6 h-6'}`} />
-          </motion.button>
+          </motion.button> */}
 
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -564,7 +564,7 @@ export function ChatInterface({
           </motion.button>
         </div>
 
-        <div className={`flex justify-between items-center mt-4 text-text-secondary ${
+        {/* <div className={`flex justify-between items-center mt-4 text-text-secondary ${
           isMobile ? 'text-xs' : 'text-sm'
         }`}>
           <span className={isMobile ? 'truncate max-w-[120px]' : ''}>
@@ -576,7 +576,7 @@ export function ChatInterface({
               <span>PRO</span>
             </span>
           )}
-        </div>
+        </div> */}
       </motion.div>
     </div>
   )

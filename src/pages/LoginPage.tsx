@@ -100,9 +100,9 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background-secondary to-background">
       <div className="max-w-md w-full space-y-8 p-8 bg-background rounded-2xl border border-border shadow-lg">
         <div className="text-center">
-          <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-6">
+          <Link to="/" className="inline-block w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-6 hover:bg-primary-dark transition-colors">
             <Sparkles className="w-8 h-8 text-white" />
-          </div>
+          </Link>
           <h2 className="text-3xl font-bold text-text-primary mb-2">
             Войти в аккаунт
           </h2>
