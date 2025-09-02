@@ -369,6 +369,9 @@ export function ChatSidebar({
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               className="fixed left-0 top-0 h-full z-50"
+              style={{
+                width: '90vw',
+              }}
             >
               {sidebarContent}
             </motion.div>
