@@ -232,6 +232,13 @@ export function ModelSelector({ models, selectedModel, onModelChange, isLoading 
       <ProUpgradeBanner
         isVisible={showProBanner}
         onClose={() => setShowProBanner(false)}
+        onSwitchToFreeModel={() => {
+          // Переключаем на первую бесплатную модель
+          const freeModel = models.find(m => m.is_free)
+          if (freeModel && onModelChange) {
+            onModelChange(freeModel.id)
+          }
+        }}
         selectedModel={models.find(m => !m.is_free)?.name}
       />
     </div>

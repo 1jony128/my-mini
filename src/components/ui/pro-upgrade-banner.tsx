@@ -8,13 +8,18 @@ import { Link } from 'react-router-dom'
 interface ProUpgradeBannerProps {
   isVisible: boolean
   onClose: () => void
+  onSwitchToFreeModel: () => void
   selectedModel?: string
 }
 
-export function ProUpgradeBanner({ isVisible, onClose, selectedModel }: ProUpgradeBannerProps) {
-
+export function ProUpgradeBanner({ isVisible, onClose, onSwitchToFreeModel, selectedModel }: ProUpgradeBannerProps) {
 
   const handleClose = () => {
+    onClose()
+  }
+
+  const handleLater = () => {
+    onSwitchToFreeModel()
     onClose()
   }
 
@@ -87,7 +92,7 @@ export function ProUpgradeBanner({ isVisible, onClose, selectedModel }: ProUpgra
                 </Link>
                 
                 <button
-                  onClick={handleClose}
+                  onClick={handleLater}
                   className="text-white/80 hover:text-white transition-colors text-sm"
                 >
                   Позже

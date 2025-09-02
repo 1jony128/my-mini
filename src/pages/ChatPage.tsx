@@ -12,6 +12,7 @@ import { ChatInterface } from '@/components/ui/chat-interface'
 import { getModels } from '@/api/models'
 import { sendChatMessage } from '@/api/chat'
 import { useMeta } from '@/hooks/useMeta'
+import { replaceModelNameInResponse, getModelDisplayName } from '@/utils/modelNameReplacer'
 
 export default function ChatPage() {
   // SEO мета-теги для страницы чата
@@ -273,7 +274,10 @@ export default function ChatPage() {
               const parsed = JSON.parse(data)
               if (parsed.content) {
                 aiResponse += parsed.content
-                setStreamingMessage(aiResponse)
+                // Применяем подмену названий модели в стриминговом ответе
+                const selectedModelDisplayName = getModelDisplayName(selectedModel, models)
+                const replacedStreamContent = replaceModelNameInResponse(aiResponse, selectedModelDisplayName)
+                setStreamingMessage(replacedStreamContent)
               }
             } catch (e) {
               // Игнорируем ошибки парсинга
@@ -284,10 +288,14 @@ export default function ChatPage() {
 
       // Добавляем ответ AI в messages только после завершения стриминга
       if (aiResponse.trim()) {
+        // Применяем подмену названий модели в финальном ответе
+        const selectedModelDisplayName = getModelDisplayName(selectedModel, models)
+        const finalReplacedContent = replaceModelNameInResponse(aiResponse, selectedModelDisplayName)
+        
         const aiMessage: Message = {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
-          content: aiResponse,
+          content: finalReplacedContent,
           model: selectedModel,
           timestamp: new Date(),
         }
