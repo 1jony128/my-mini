@@ -34,27 +34,27 @@ export default function LandingPage() {
       {/* Header */}
       <header className="relative z-10">
         <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <Link to="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
               <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                 </svg>
               </div>
-              <h1 className="text-2xl font-bold text-text-primary">ChatAIPRO</h1>
+              <h1 className="text-xl md:text-2xl font-bold text-text-primary">ChatAIPRO</h1>
             </Link>
             
-            <div className="flex items-center space-x-4">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
               <Link 
                 to="/blog"
-                className="px-6 py-2 text-text-primary hover:text-primary transition-colors"
+                className="px-4 md:px-6 py-2 text-center text-text-primary hover:text-primary transition-colors"
               >
                 Блог
               </Link>
               {user ? (
                 <Link 
                   to="/chat"
-                  className="px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-xl transition-all font-medium"
+                  className="px-4 md:px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-xl transition-all font-medium text-center"
                 >
                   Перейти в чат
                 </Link>
@@ -62,13 +62,13 @@ export default function LandingPage() {
                 <>
                   <Link 
                     to="/login"
-                    className="px-6 py-2 text-text-primary hover:text-primary transition-colors"
+                    className="px-4 md:px-6 py-2 text-center text-text-primary hover:text-primary transition-colors"
                   >
                     Войти
                   </Link>
                   <Link 
                     to="/register"
-                    className="px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-xl transition-all font-medium"
+                    className="px-4 md:px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-xl transition-all font-medium text-center"
                   >
                     Регистрация
                   </Link>
@@ -88,21 +88,21 @@ export default function LandingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <h1 className="text-5xl md:text-7xl font-bold text-text-primary mb-6">
-                Чат GPT без{' '}
-                <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-text-primary mb-6 leading-tight">
+                <span className="block sm:inline">Чат GPT без</span>{' '}
+                <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent block sm:inline">
                   VPN
                 </span>
               </h1>
-              <p className="text-xl md:text-2xl text-text-secondary mb-8 leading-relaxed">
+              <p className="text-lg sm:text-xl md:text-2xl text-text-secondary mb-8 leading-relaxed px-4 sm:px-0">
                 Доступ к GPT-4, Claude, DeepSeek и другим ИИ-моделям без VPN. Общайтесь с искусственным интеллектом без ограничений.
               </p>
               
-              <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4 sm:gap-6 w-full sm:w-auto">
                 {user ? (
                   <Link 
                     to="/chat"
-                    className="group px-8 py-4 bg-primary hover:bg-primary-dark text-white rounded-2xl transition-all font-semibold text-lg flex items-center space-x-2"
+                    className="group px-6 sm:px-8 py-4 bg-primary hover:bg-primary-dark text-white rounded-2xl transition-all font-semibold text-base sm:text-lg flex items-center justify-center space-x-2 w-full sm:w-auto"
                   >
                     <span>Перейти в чат</span>
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -111,14 +111,14 @@ export default function LandingPage() {
                   <>
                     <Link 
                       to="/register"
-                      className="group px-8 py-4 bg-primary hover:bg-primary-dark text-white rounded-2xl transition-all font-semibold text-lg flex items-center space-x-2"
+                      className="group px-6 sm:px-8 py-4 bg-primary hover:bg-primary-dark text-white rounded-2xl transition-all font-semibold text-base sm:text-lg flex items-center justify-center space-x-2 w-full sm:w-auto"
                     >
                       <span>Начать бесплатно</span>
                       <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </Link>
                     <Link 
                       to="/login"
-                      className="px-8 py-4 border-2 border-border hover:border-primary text-text-primary hover:text-primary rounded-2xl transition-all font-semibold text-lg"
+                      className="px-6 sm:px-8 py-4 border-2 border-border hover:border-primary text-text-primary hover:text-primary rounded-2xl transition-all font-semibold text-base sm:text-lg text-center w-full sm:w-auto"
                     >
                       Уже есть аккаунт
                     </Link>
