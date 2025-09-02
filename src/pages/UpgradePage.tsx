@@ -126,6 +126,12 @@ export default function UpgradePage() {
               <button onClick={() => handleUpgrade(plan.id)} className={`w-full py-3 rounded-lg font-semibold transition-colors ${selectedPlan === plan.id ? 'bg-primary text-white hover:bg-primary-dark' : 'bg-muted text-text-primary hover:bg-accent'}`}>
                 {isPro ? 'Изменить план' : 'Выбрать план'}
               </button>
+              <p className="text-xs text-text-secondary text-center mt-3">
+                Оплачивая, вы соглашаетесь с{' '}
+                <a href="/terms" className="text-primary hover:underline">пользовательским соглашением</a>
+                {' '}и{' '}
+                <a href="/privacy" className="text-primary hover:underline">политикой конфиденциальности</a>
+              </p>
             </div>
           ))}
         </div>

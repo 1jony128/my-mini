@@ -285,6 +285,15 @@ export default function ProfilePage() {
             <Crown className="w-5 h-5" />
             <span>{userStats.isPro ? 'Управление подпиской' : 'Перейти на PRO'}</span>
           </button>
+          
+          {!userStats.isPro && (
+            <p className="text-xs text-text-secondary text-center">
+              Оплачивая, вы соглашаетесь с{' '}
+              <a href="/terms" className="text-primary hover:underline">пользовательским соглашением</a>
+              {' '}и{' '}
+              <a href="/privacy" className="text-primary hover:underline">политикой конфиденциальности</a>
+            </p>
+          )}
 
           <button
             onClick={handleSignOut}

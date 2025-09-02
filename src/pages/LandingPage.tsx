@@ -335,6 +335,13 @@ export default function LandingPage() {
               >
                 Обновить до PRO
               </Link>
+              
+              <p className="text-xs text-text-secondary text-center mt-3">
+                Оплачивая, вы соглашаетесь с{' '}
+                <a href="/terms" className="text-primary hover:underline">пользовательским соглашением</a>
+                {' '}и{' '}
+                <a href="/privacy" className="text-primary hover:underline">политикой конфиденциальности</a>
+              </p>
             </motion.div>
           </div>
         </div>

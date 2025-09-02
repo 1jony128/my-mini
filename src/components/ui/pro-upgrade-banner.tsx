@@ -98,6 +98,13 @@ export function ProUpgradeBanner({ isVisible, onClose, onSwitchToFreeModel, sele
                   Позже
                 </button>
               </div>
+              
+              <p className="text-xs text-white/70 text-center mt-3">
+                Оплачивая, вы соглашаетесь с{' '}
+                <a href="/terms" className="text-white hover:underline font-medium">пользовательским соглашением</a>
+                {' '}и{' '}
+                <a href="/privacy" className="text-white hover:underline font-medium">политикой конфиденциальности</a>
+              </p>
             </div>
           </div>
         </div>

@@ -117,14 +117,30 @@ async function generateAIResponse(modelId: string, messages: ChatMessage[], stre
     throw new Error(`Unsupported model: ${modelId}`)
   }
 
-  // Для платных моделей (GPT-4, Claude) используем только Grok
+  // Для платных моделей (GPT-4, Claude) сначала пробуем Grok, потом fallback на OpenRouter
   if (['gpt-4', 'gpt-4-turbo', 'claude-3-sonnet', 'claude-3-opus-max'].includes(modelId)) {
     try {
-      // Для Grok используем правильное название модели (как было в старом коде)
+      // Сначала пробуем Grok
+      console.log(`Trying Grok for ${modelId}...`)
       return await callGrok('grok-4-latest', messages, stream)
     } catch (error) {
-      console.error(`Grok failed for ${modelId}:`, error)
-      throw new Error(`Grok service unavailable for ${modelId}`)
+      console.log(`Grok failed for ${modelId}, trying OpenRouter fallback:`, error)
+      
+      // Если Grok недоступен (CORS, блокировка), используем OpenRouter как fallback
+      try {
+        if (modelId === 'gpt-4') {
+          return await callOpenRouter('openai/gpt-4', messages, stream)
+        } else if (modelId === 'gpt-4-turbo') {
+          return await callOpenRouter('openai/gpt-4-turbo', messages, stream)
+        } else if (modelId === 'claude-3-sonnet') {
+          return await callOpenRouter('anthropic/claude-3.5-sonnet', messages, stream)
+        } else if (modelId === 'claude-3-opus-max') {
+          return await callOpenRouter('anthropic/claude-3-opus', messages, stream)
+        }
+      } catch (fallbackError) {
+        console.error(`Both Grok and OpenRouter fallback failed for ${modelId}:`, fallbackError)
+        throw new Error(`All providers failed for ${modelId}. Please try again later.`)
+      }
     }
   }
 

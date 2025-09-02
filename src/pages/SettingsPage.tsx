@@ -315,6 +315,15 @@ export default function SettingsPage() {
             >
               {userData.isPro ? 'Управление подпиской' : 'Перейти на PRO'}
             </button>
+            
+            {!userData.isPro && (
+              <p className="text-xs text-text-secondary text-center mt-3">
+                Оплачивая, вы соглашаетесь с{' '}
+                <a href="/terms" className="text-primary hover:underline">пользовательским соглашением</a>
+                {' '}и{' '}
+                <a href="/privacy" className="text-primary hover:underline">политикой конфиденциальности</a>
+              </p>
+            )}
           </div>
         </motion.div>
       </div>
