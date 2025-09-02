@@ -22,7 +22,7 @@ FROM nginx:alpine
 RUN rm /etc/nginx/conf.d/default.conf
 
 # Копируем нашу конфигурацию nginx
-COPY nginx.conf /etc/nginx/conf.d/
+COPY nginx-advanced.conf /etc/nginx/conf.d/nginx.conf
 
 # Копируем собранное приложение
 COPY --from=builder /app/build /usr/share/nginx/html
