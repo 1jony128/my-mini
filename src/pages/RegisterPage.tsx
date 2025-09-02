@@ -69,7 +69,8 @@ export default function RegisterPage() {
     }
   }
 
-  const handleGoogleRegister = async () => {
+  // TODO: Включить когда настроим Google OAuth в Supabase
+  /* const handleGoogleRegister = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -86,7 +87,7 @@ export default function RegisterPage() {
     } catch (error) {
       toast.error('Ошибка при регистрации через Google')
     }
-  }
+  } */
 
   // Показываем загрузку пока проверяем состояние аутентификации
   if (authLoading) {
@@ -195,6 +196,7 @@ export default function RegisterPage() {
           </button>
         </form>
 
+        {/* TODO: Включить когда настроим Google OAuth в Supabase
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-border" />
@@ -216,6 +218,7 @@ export default function RegisterPage() {
           </svg>
           <span>Зарегистрироваться через Google</span>
         </button>
+        */}
 
         <div className="text-center text-sm text-text-secondary">
           Уже есть аккаунт?{' '}

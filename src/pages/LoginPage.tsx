@@ -60,7 +60,8 @@ export default function LoginPage() {
     }
   }
 
-  const handleGoogleLogin = async () => {
+  // TODO: Включить когда настроим Google OAuth в Supabase
+  /* const handleGoogleLogin = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -77,7 +78,7 @@ export default function LoginPage() {
     } catch (error) {
       toast.error('Ошибка при входе через Google')
     }
-  }
+  } */
 
   // Показываем загрузку пока проверяем состояние аутентификации
   if (authLoading) {
@@ -162,6 +163,7 @@ export default function LoginPage() {
           </button>
         </form>
 
+        {/* TODO: Включить когда настроим Google OAuth в Supabase
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-border" />
@@ -183,6 +185,7 @@ export default function LoginPage() {
           </svg>
           <span>Войти через Google</span>
         </button>
+        */}
 
         <div className="text-center">
           <Link to="/forgot-password" className="text-primary hover:text-primary-dark text-sm transition-colors">
