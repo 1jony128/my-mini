@@ -1,50 +1,34 @@
-# Используем официальный Node.js образ
-FROM node:18-alpine AS base
+# Multi-stage build
+FROM node:18-alpine AS builder
 
-# Устанавливаем зависимости только когда нужно
-FROM base AS deps
-# Проверяем https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine
-RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Копируем файлы зависимостей
-COPY package.json package-lock.json* ./
-RUN npm ci
+# Копируем package.json и package-lock.json
+COPY package*.json ./
 
-# Пересобираем исходный код только когда нужно
-FROM base AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+# Устанавливаем зависимости
+RUN npm ci --only=production
+
+# Копируем исходный код
 COPY . .
 
-# Собираем приложение для продакшена
+# Собираем приложение
 RUN npm run build
 
-# Создаем папку public если её нет
-RUN mkdir -p public
+# Production stage
+FROM nginx:alpine
 
-# Продакшн образ, копируем все файлы и запускаем next
-FROM base AS runner
-WORKDIR /app
+# Удаляем стандартную конфигурацию nginx
+RUN rm /etc/nginx/conf.d/default.conf
 
-ENV NODE_ENV=production
-# Создаем пользователя nextjs для безопасности
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+# Копируем нашу конфигурацию nginx
+COPY nginx.conf /etc/nginx/conf.d/
 
 # Копируем собранное приложение
-COPY --from=builder /app/public ./public
+COPY --from=builder /app/build /usr/share/nginx/html
 
-# Автоматически используем output standalone для оптимизации образа
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Открываем порт 80
+EXPOSE 80
 
-USER nextjs
-
-EXPOSE 8080
-
-ENV PORT=8080
-ENV HOSTNAME="0.0.0.0"
-
-# Запускаем приложение
-CMD ["node", "server.js"]
+# Запускаем nginx
+CMD ["nginx", "-g", "daemon off;"]
