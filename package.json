@@ -5,10 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && npm run prerender:build",
+    "build:static": "tsc && vite build",
     "preview": "vite preview",
     "prerender": "vite preview --port 4173 & sleep 5 && node scripts/prerender.js && kill $!",
-    "build:prerender": "npm run build && npm run prerender",
+    "prerender:build": "vite preview --port 4173 --host & sleep 8 && node scripts/prerender.js; pkill -f 'vite preview'",
+    "build:prerender": "npm run build:static && npm run prerender",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {

@@ -29,7 +29,11 @@ async function prerender() {
       '--disable-setuid-sandbox',
       '--disable-dev-shm-usage',
       '--disable-gpu',
-      '--no-first-run'
+      '--no-first-run',
+      '--disable-web-security',
+      '--disable-features=VizDisplayCompositor',
+      '--single-process',
+      '--no-zygote'
     ]
   });
 
@@ -50,7 +54,7 @@ async function prerender() {
       console.log(`📄 Рендерим ${route}...`);
       
       const url = `http://localhost:4173${route}`;
-      await page.goto(url, { waitUntil: 'networkidle0', timeout: 10000 });
+      await page.goto(url, { waitUntil: 'networkidle0', timeout: 15000 });
       
       // Ждем пока React отрендерит контент
       await new Promise(resolve => setTimeout(resolve, 3000));
