@@ -263,7 +263,7 @@ export default function TermsPage() {
             
             <div className="space-y-2">
               <p className="text-text-secondary">
-                <strong>Email:</strong> legal@example.com
+                <strong>Email:</strong> esevcov097@gmail.com
               </p>
               <p className="text-text-secondary">
                 <strong>Адрес:</strong> Россия, Москва

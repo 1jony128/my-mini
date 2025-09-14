@@ -199,7 +199,7 @@ export default function PrivacyPage() {
             
             <div className="space-y-2">
               <p className="text-text-secondary">
-                <strong>Email:</strong> privacy@example.com
+                <strong>Email:</strong> esevcov097@gmail.com
               </p>
               <p className="text-text-secondary">
                 <strong>Адрес:</strong> Россия, Москва
