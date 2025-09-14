@@ -431,12 +431,18 @@ export default function LandingPage() {
             <p className="text-text-secondary mb-6">
               © 2025 ChatAIPRO. Все права защищены.
             </p>
-            <div className="flex items-center justify-center space-x-6">
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
               <Link to="/" className="text-text-secondary hover:text-primary transition-colors">
                 Главная
               </Link>
               <Link to="/blog" className="text-text-primary font-medium">
                 Блог
+              </Link>
+              <Link to="/terms" className="text-text-secondary hover:text-primary transition-colors">
+                Условия использования
+              </Link>
+              <Link to="/privacy" className="text-text-secondary hover:text-primary transition-colors">
+                Политика конфиденциальности
               </Link>
               {user ? (
                 <Link 
