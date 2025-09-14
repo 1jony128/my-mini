@@ -268,6 +268,12 @@ export default function TermsPage() {
               <p className="text-text-secondary">
                 <strong>Адрес:</strong> Россия, Москва
               </p>
+              <p className="text-text-secondary">
+                <strong>ИП:</strong> Шевцов Евгений Сергеевич
+              </p>
+              <p className="text-text-secondary">
+                <strong>ИНН:</strong> 281304128917
+              </p>
             </div>
           </div>
         </div>
