@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Send, Sparkles, Loader2, Copy, Check } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
@@ -60,7 +60,9 @@ export function ChatInterface({
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null)
   const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null)
   const [showProBanner, setShowProBanner] = useState(false)
+  const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const chatContainerRef = useRef<HTMLDivElement>(null)
 
   const copyToClipboard = async (text: string, type: 'message' | 'code', id: string) => {
     try {
@@ -78,9 +80,10 @@ export function ChatInterface({
     }
   }
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
+    if (!isAutoScrollEnabled) return
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
+  }, [isAutoScrollEnabled])
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -96,7 +99,26 @@ export function ChatInterface({
   // Автоматический скролл при новых сообщениях или стриминге
   useEffect(() => {
     scrollToBottom()
-  }, [messages, isStreaming, streamingMessage])
+  }, [messages, isStreaming, streamingMessage, scrollToBottom])
+
+  useEffect(() => {
+    const container = chatContainerRef.current
+    if (!container) return
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = container
+      const distanceFromBottom = scrollHeight - (scrollTop + clientHeight)
+      const isAtBottom = distanceFromBottom < 80
+      setIsAutoScrollEnabled(prev => (prev === isAtBottom ? prev : isAtBottom))
+    }
+
+    handleScroll()
+    container.addEventListener('scroll', handleScroll)
+
+    return () => {
+      container.removeEventListener('scroll', handleScroll)
+    }
+  }, [])
 
   // Проверяем, нужно ли показать PRO баннер
   useEffect(() => {
@@ -253,7 +275,11 @@ export function ChatInterface({
       </motion.div>
 
       {/* Messages */}
-      <div style={{ height: `calc(-100px + 100vh)` }} className="overflow-y-auto p-6 space-y-6 relative z-10">
+      <div
+        ref={chatContainerRef}
+        style={{ height: `calc(-100px + 100vh)` }}
+        className="overflow-y-auto p-6 space-y-6 relative z-10"
+      >
         {/* PRO Upgrade Banner */}
         <ProUpgradeBanner
           isVisible={showProBanner}
